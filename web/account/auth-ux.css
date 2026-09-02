@@ -48,40 +48,19 @@ button[aria-busy="true"]::after {
   min-height: 1.5em;
   margin: 0;
   color: #46655b;
-  font-size: 14px;
-  line-height: 1.5;
 }
 
 .password-policy {
-  padding: 12px 14px;
-  border: 1px solid #d9e6df;
-  border-radius: 11px;
-  background: #f7faf8;
-  color: #52665f;
-  font-size: 13px;
-}
-
-.password-policy p {
-  margin: 0 0 8px;
-  font-weight: 700;
-}
-
-.password-policy ul {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 5px 16px;
   margin: 0;
-  padding-left: 19px;
+  color: #52665f;
 }
 
-.password-policy li.policy-met {
-  color: #19744f;
-  text-decoration: line-through;
-  text-decoration-thickness: 1px;
-}
-
-@media (max-width: 430px) {
-  .password-policy ul { grid-template-columns: 1fr; }
+.auth-card > p:not(.eyebrow),
+.auth-card .form-message,
+.auth-card .send-status,
+.auth-card .password-policy {
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .password-control {

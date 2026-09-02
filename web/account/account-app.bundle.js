@@ -20350,10 +20350,6 @@ var SKREK_PASSWORD_POLICY = Object.freeze({
   rules: Object.freeze(ruleDefinitions.map((rule) => Object.freeze(rule)))
 });
 var PASSWORD_POLICY_COPY = "\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u540C\u65F6\u5305\u542B\u5927\u5199\u5B57\u6BCD\u3001\u5C0F\u5199\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002";
-function passwordRuleStates(password = "") {
-  const value = String(password);
-  return SKREK_PASSWORD_POLICY.rules.map((rule) => ({ id: rule.id, label: rule.label, valid: rule.test(value) }));
-}
 function validatePasswordPair(password = "", confirmation = "") {
   const value = String(password), confirmed = String(confirmation);
   if (!value) return "\u8BF7\u8F93\u5165\u65B0\u5BC6\u7801\u3002";
@@ -20631,7 +20627,7 @@ function bindPasswordVisibility() {
   }));
 }
 function passwordPolicyChecklist() {
-  return `<div class="password-policy" data-password-policy><p>${PASSWORD_POLICY_COPY}</p><ul>${SKREK_PASSWORD_POLICY.rules.map((rule) => `<li data-policy-rule="${rule.id}">${rule.label}</li>`).join("")}</ul></div>`;
+  return `<p class="password-policy" data-password-policy>${PASSWORD_POLICY_COPY}</p>`;
 }
 function clearFormMessage() {
   const node = document.querySelector("#form-message");
@@ -20640,16 +20636,9 @@ function clearFormMessage() {
 function bindPasswordPolicyUI() {
   const password = document.querySelector("#password"), confirmation = document.querySelector("#confirm");
   if (!password || !confirmation) return;
-  const refresh = () => {
-    for (const rule of passwordRuleStates(password.value)) {
-      const item = document.querySelector(`[data-policy-rule="${rule.id}"]`);
-      item?.classList.toggle("policy-met", rule.valid);
-    }
-    clearFormMessage();
-  };
-  password.addEventListener("input", refresh);
+  password.addEventListener("input", clearFormMessage);
   confirmation.addEventListener("input", clearFormMessage);
-  refresh();
+  clearFormMessage();
 }
 function renderLogin() {
   app.innerHTML = authCard("\u767B\u5F55 SKREK", "\u8FDB\u5165\u60A8\u7684\u5BA2\u6237\u4E2D\u5FC3\u3002", `${state.notice ? message(state.notice, "success") : ""}<form id="login-form"><label>\u90AE\u7BB1<input id="email" type="email" autocomplete="email" required></label>${passwordField({ label: "\u5BC6\u7801", id: "password", autocomplete: "current-password" })}<div id="form-message"></div><button type="submit">\u767B\u5F55</button></form><div class="auth-links"><button id="forgot" class="link-button">\u5FD8\u8BB0\u5BC6\u7801</button><button id="signup" class="link-button">\u521B\u5EFA\u8D26\u6237</button></div>`);
