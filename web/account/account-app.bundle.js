@@ -20378,8 +20378,10 @@ function authErrorMessage(error, { context = "general" } = {}) {
   if (/username_taken|duplicate key.*username/i.test(text)) return "\u8BE5\u7528\u6237\u540D\u5DF2\u88AB\u4F7F\u7528\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u3002";
   if (/username_invalid/i.test(text)) return "\u7528\u6237\u540D\u987B\u4E3A3\u201330\u4F4D\u82F1\u6587\u5B57\u6BCD\u3001\u6570\u5B57\u6216\u4E0B\u5212\u7EBF\u3002";
   if (/password/i.test(text) && /(characters|weak|least|short)/i.test(text)) return "\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u987B\u6EE1\u8DB3\u5B89\u5168\u5F3A\u5EA6\u8981\u6C42\u3002";
+  if (context === "otp" && /(incorrect|wrong)/i.test(text)) return "\u9A8C\u8BC1\u7801\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5\u540E\u91CD\u8BD5\u3002";
   if (context === "otp" && /expired/i.test(text) && !/invalid/i.test(text)) return "\u9A8C\u8BC1\u7801\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u83B7\u53D6\u3002";
-  if (context === "otp" && /(token|otp|code).*(invalid|expired)|invalid.*(token|otp|code)/i.test(text)) return "\u9A8C\u8BC1\u7801\u65E0\u6548\u3001\u5DF2\u8FC7\u671F\u6216\u5DF2\u88AB\u65B0\u9A8C\u8BC1\u7801\u66FF\u6362\uFF0C\u8BF7\u4F7F\u7528\u6700\u65B0\u9A8C\u8BC1\u7801\u3002";
+  if (context === "otp" && /invalid.*expired|expired.*invalid/i.test(text)) return "\u9A8C\u8BC1\u7801\u65E0\u6548\u6216\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u83B7\u53D6\u5E76\u4F7F\u7528\u6700\u65B0\u9A8C\u8BC1\u7801\u3002";
+  if (context === "otp" && /(token|otp|code).*(invalid)|invalid.*(token|otp|code)/i.test(text)) return "\u9A8C\u8BC1\u7801\u65E0\u6548\u6216\u5DF2\u88AB\u65B0\u9A8C\u8BC1\u7801\u66FF\u6362\uFF0C\u8BF7\u4F7F\u7528\u6700\u65B0\u9A8C\u8BC1\u7801\u3002";
   if (context === "recovery-session" && /(expired|invalid|session|pkce|code)/i.test(text)) return "\u5BC6\u7801\u6062\u590D\u94FE\u63A5\u65E0\u6548\u6216\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u3002";
   if (/fetch|network|timeout|temporar|service unavailable/i.test(text)) return "\u7F51\u7EDC\u6216\u8D26\u6237\u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002";
   return "\u64CD\u4F5C\u672A\u5B8C\u6210\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002";
