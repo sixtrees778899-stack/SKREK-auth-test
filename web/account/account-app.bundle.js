@@ -20269,10 +20269,10 @@ var SKREK_GLOBAL_NAV = [
   ["about", "\u8054\u7CFB\u6211\u4EEC"]
 ];
 var esc = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
-function skrekGlobalHeader({ brand, activeRoute = "home", mode = "product", productBase = "../v3-crypto/index.html?release=global-nav-v1", accountBase = "/web/account/index.html" } = {}) {
+function skrekGlobalHeader({ brand, activeRoute = "home", mode = "product", productBase = "../v3-crypto/index.html?release=global-nav-v1", accountBase = "/web/account/index.html", logoBase = "/web/assets/skrek-logo-formal.png?v=20260814-hd", recoveryBase = recoveryUrl("recovery-center") } = {}) {
   const wordmark = esc(brand?.wordmark ?? "SKREK"), tagline = esc(brand?.tagline ?? "Digital Asset Recovery & Continuity");
   const href = (id) => mode === "map" ? `${productBase}#${id}` : `#${id}`;
-  return `<div class="nav-shell"><a id="product-home-logo" class="wordmark" data-route="home" href="${href("home")}" aria-label="${wordmark}\u9996\u9875"><img src="/web/assets/skrek-logo-formal.png?v=20260814-hd" alt="${wordmark} \u2014 ${tagline}"></a><nav aria-label="\u4E3B\u8981\u5BFC\u822A">${SKREK_GLOBAL_NAV.map(([id, label]) => `<a data-route="${id}" href="${href(id)}" class="${activeRoute === id ? "active" : ""}">${label}</a>`).join("")}</nav><div class="nav-actions"><a class="text-button account-state-link" data-account-state href="${accountBase}#login">\u767B\u5F55 / \u6CE8\u518C</a><a class="button small recovery-center-link" href="${recoveryUrl("recovery-center")}">\u6211\u7684\u6062\u590D\u4E2D\u5FC3</a><button id="menu" class="menu" aria-label="\u6253\u5F00\u5BFC\u822A" aria-expanded="false">\u2630</button></div></div>`;
+  return `<div class="nav-shell"><a id="product-home-logo" class="wordmark" data-route="home" href="${href("home")}" aria-label="${wordmark}\u9996\u9875"><img src="${logoBase}" alt="${wordmark} \u2014 ${tagline}"></a><nav aria-label="\u4E3B\u8981\u5BFC\u822A">${SKREK_GLOBAL_NAV.map(([id, label]) => `<a data-route="${id}" href="${href(id)}" class="${activeRoute === id ? "active" : ""}">${label}</a>`).join("")}</nav><div class="nav-actions"><a class="text-button account-state-link" data-account-state href="${accountBase}#login">\u767B\u5F55 / \u6CE8\u518C</a><a class="button small recovery-center-link" href="${recoveryBase}">\u6211\u7684\u6062\u590D\u4E2D\u5FC3</a><button id="menu" class="menu" aria-label="\u6253\u5F00\u5BFC\u822A" aria-expanded="false">\u2630</button></div></div>`;
 }
 
 // src/account/recovery-metadata-client.js
@@ -20338,52 +20338,64 @@ var CUSTOMER_CENTER_LIFECYCLE = Object.freeze({ pendingKey: PENDING_KEY, formalS
 // src/account/auth-state-machine.js
 var AUTH_STAGES = Object.freeze({
   LOGIN: "LOGIN",
-  SIGNUP_EMAIL: "SIGNUP_EMAIL",
-  SIGNUP_OTP: "SIGNUP_OTP",
+  NEW_SIGNUP: "NEW_SIGNUP",
+  VERIFICATION_PENDING: "VERIFICATION_PENDING",
+  INCOMPLETE_HISTORICAL_ACCOUNT: "INCOMPLETE_HISTORICAL_ACCOUNT",
+  HISTORICAL_VERIFICATION_PENDING: "HISTORICAL_VERIFICATION_PENDING",
   SET_PASSWORD: "SET_PASSWORD",
-  ACCOUNT_COMPLETION: "ACCOUNT_COMPLETION",
-  AUTHENTICATED_COMPLETE: "AUTHENTICATED_COMPLETE",
-  PASSWORD_RECOVERY_REQUEST: "PASSWORD_RECOVERY_REQUEST",
+  ACCOUNT_COMPLETE: "ACCOUNT_COMPLETE",
+  AUTHENTICATED_COMPLETE: "ACCOUNT_COMPLETE",
+  FORGOT_PASSWORD: "FORGOT_PASSWORD",
   PASSWORD_RECOVERY_SESSION: "PASSWORD_RECOVERY_SESSION",
-  RESET_PASSWORD: "RESET_PASSWORD"
+  RESET_PASSWORD: "RESET_PASSWORD",
+  PASSWORD_RESET_COMPLETE: "PASSWORD_RESET_COMPLETE"
 });
-var lifecyclePriority = /* @__PURE__ */ new Set([
-  AUTH_STAGES.SET_PASSWORD,
-  AUTH_STAGES.ACCOUNT_COMPLETION,
+var recoveryPriority = /* @__PURE__ */ new Set([
   AUTH_STAGES.PASSWORD_RECOVERY_SESSION,
-  AUTH_STAGES.RESET_PASSWORD
+  AUTH_STAGES.RESET_PASSWORD,
+  AUTH_STAGES.PASSWORD_RESET_COMPLETE
 ]);
-function isLifecyclePriorityStage(stage) {
-  return lifecyclePriority.has(stage);
+function hasRecoveryIntent({ hash = "", search = "", href = "" } = {}) {
+  const params = new URLSearchParams(String(search).replace(/^\?/, ""));
+  return String(hash).replace(/^#/, "") === "reset-password" || params.get("auth_action") === "recovery" || params.get("type") === "recovery" || /(?:[?#&])type=recovery(?:&|$)/.test(String(href));
 }
-function stageFromHash(hash = "") {
+function isRecoveryPriorityStage(stage) {
+  return recoveryPriority.has(stage);
+}
+function stageFromLocation({ hash = "", search = "", href = "" } = {}) {
+  if (hasRecoveryIntent({ hash, search, href })) return AUTH_STAGES.RESET_PASSWORD;
   const route = String(hash).replace(/^#/, "");
-  if (route === "signup") return AUTH_STAGES.SIGNUP_EMAIL;
-  if (route === "verify") return AUTH_STAGES.SIGNUP_OTP;
-  if (route === "forgot") return AUTH_STAGES.PASSWORD_RECOVERY_REQUEST;
-  if (route === "reset-password") return AUTH_STAGES.RESET_PASSWORD;
+  if (route === "signup") return AUTH_STAGES.NEW_SIGNUP;
+  if (route === "verify") return AUTH_STAGES.VERIFICATION_PENDING;
+  if (route === "verify-incomplete") return AUTH_STAGES.HISTORICAL_VERIFICATION_PENDING;
+  if (route === "forgot") return AUTH_STAGES.FORGOT_PASSWORD;
+  if (route === "password-reset-complete") return AUTH_STAGES.PASSWORD_RESET_COMPLETE;
   return AUTH_STAGES.LOGIN;
 }
-function resolveAuthenticatedStage({ stage, hasSession: hasSession2, profileComplete = false, credentialState = "" }) {
-  if (isLifecyclePriorityStage(stage)) return stage;
-  if (!hasSession2) return stage === AUTH_STAGES.SIGNUP_EMAIL || stage === AUTH_STAGES.SIGNUP_OTP || stage === AUTH_STAGES.PASSWORD_RECOVERY_REQUEST ? stage : AUTH_STAGES.LOGIN;
-  if (profileComplete || credentialState === "COMPLETE") return AUTH_STAGES.AUTHENTICATED_COMPLETE;
+function resolveAuthenticatedStage({ stage, hasSession: hasSession2, credentialState = "" } = {}) {
+  if (isRecoveryPriorityStage(stage)) return stage;
+  if (!hasSession2) return [AUTH_STAGES.NEW_SIGNUP, AUTH_STAGES.VERIFICATION_PENDING, AUTH_STAGES.HISTORICAL_VERIFICATION_PENDING, AUTH_STAGES.FORGOT_PASSWORD].includes(stage) ? stage : AUTH_STAGES.LOGIN;
   if (credentialState === "PASSWORD_REQUIRED") return AUTH_STAGES.SET_PASSWORD;
-  return AUTH_STAGES.ACCOUNT_COMPLETION;
+  return AUTH_STAGES.ACCOUNT_COMPLETE;
+}
+function accountKindFromMetadata(metadata = {}) {
+  const state2 = metadata?.skrek_account_state ?? "";
+  if (state2 === "PASSWORD_REQUIRED") return "INCOMPLETE_HISTORICAL_ACCOUNT";
+  if (state2 === "ACCOUNT_COMPLETE_PENDING_VERIFICATION") return "NEW_VERIFICATION_PENDING";
+  return "ACCOUNT_COMPLETE";
 }
 function authErrorMessage(error, { context = "general" } = {}) {
   const text = String(error?.message ?? error ?? "");
   if (/invalid.*email|email.*invalid/i.test(text)) return "\u8BF7\u8F93\u5165\u6709\u6548\u7684\u90AE\u7BB1\u5730\u5740\u3002";
   if (/invalid login|invalid credentials/i.test(text)) return "\u90AE\u7BB1\u6216\u5BC6\u7801\u4E0D\u6B63\u786E\u3002";
-  if (/username_taken|duplicate key.*username/i.test(text)) return "\u8BE5\u7528\u6237\u540D\u5DF2\u88AB\u4F7F\u7528\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u3002";
-  if (/username_invalid/i.test(text)) return "\u7528\u6237\u540D\u987B\u4E3A3\u201330\u4F4D\u82F1\u6587\u5B57\u6BCD\u3001\u6570\u5B57\u6216\u4E0B\u5212\u7EBF\u3002";
+  if (/username_taken|duplicate key.*username/i.test(text)) return "\u8BE5\u663E\u793A\u540D\u79F0\u5DF2\u88AB\u4F7F\u7528\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u3002";
   if (/password/i.test(text) && /(characters|weak|least|short)/i.test(text)) return "\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u987B\u6EE1\u8DB3\u5B89\u5168\u5F3A\u5EA6\u8981\u6C42\u3002";
   if (context === "otp" && /(incorrect|wrong)/i.test(text)) return "\u9A8C\u8BC1\u7801\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5\u540E\u91CD\u8BD5\u3002";
-  if (context === "otp" && /expired/i.test(text) && !/invalid/i.test(text)) return "\u9A8C\u8BC1\u7801\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u83B7\u53D6\u3002";
-  if (context === "otp" && /invalid.*expired|expired.*invalid/i.test(text)) return "\u9A8C\u8BC1\u7801\u65E0\u6548\u6216\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u83B7\u53D6\u5E76\u4F7F\u7528\u6700\u65B0\u9A8C\u8BC1\u7801\u3002";
-  if (context === "otp" && /(token|otp|code).*(invalid)|invalid.*(token|otp|code)/i.test(text)) return "\u9A8C\u8BC1\u7801\u65E0\u6548\u6216\u5DF2\u88AB\u65B0\u9A8C\u8BC1\u7801\u66FF\u6362\uFF0C\u8BF7\u4F7F\u7528\u6700\u65B0\u9A8C\u8BC1\u7801\u3002";
-  if (context === "recovery-session" && /(expired|invalid|session|pkce|code)/i.test(text)) return "\u5BC6\u7801\u6062\u590D\u94FE\u63A5\u65E0\u6548\u6216\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u3002";
-  if (/fetch|network|timeout|temporar|service unavailable/i.test(text)) return "\u7F51\u7EDC\u6216\u8D26\u6237\u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002";
+  if (context === "otp" && /expired/i.test(text) && !/invalid/i.test(text)) return "\u9A8C\u8BC1\u7801\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u83B7\u53D6\u3002";
+  if (context === "otp" && /invalid.*expired|expired.*invalid/i.test(text)) return "\u9A8C\u8BC1\u7801\u65E0\u6548\u6216\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u83B7\u53D6\u5E76\u4F7F\u7528\u6700\u65B0\u9A8C\u8BC1\u7801\u3002";
+  if (context === "otp" && /(token|otp|code).*(invalid)|invalid.*(token|otp|code)/i.test(text)) return "\u9A8C\u8BC1\u7801\u65E0\u6548\u6216\u5DF2\u88AB\u65B0\u7684\u9A8C\u8BC1\u7801\u66FF\u4EE3\uFF0C\u8BF7\u4F7F\u7528\u6700\u65B0\u6536\u5230\u7684\u9A8C\u8BC1\u7801\u3002";
+  if (context === "recovery-session" && /(expired|invalid|session|pkce|code)/i.test(text)) return "\u5BC6\u7801\u6062\u590D\u94FE\u63A5\u65E0\u6548\u6216\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u3002";
+  if (/fetch|network|timeout|temporar|service unavailable/i.test(text)) return "\u7F51\u7EDC\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u518D\u8BD5\u3002";
   return "\u64CD\u4F5C\u672A\u5B8C\u6210\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002";
 }
 
@@ -20396,6 +20408,8 @@ var supabase = configured ? createClient(config.supabaseUrl, config.supabaseAnon
 var app = document.querySelector("#account-app");
 var query = new URLSearchParams(location.search);
 var authCallbackUrl = "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/account/index.html";
+var signupCallbackUrl = `${authCallbackUrl}?auth_action=signup#verify`;
+var recoveryCallbackUrl = `${authCallbackUrl}?auth_action=recovery#reset-password`;
 var supportedPurchaseCurrencies = /* @__PURE__ */ new Set(["USD", "AUD"]);
 var purchase = {
   active: query.get("purchase") === "1",
@@ -20405,7 +20419,7 @@ var purchase = {
 };
 var testRecoveryMap = ["localhost", "127.0.0.1"].includes(location.hostname);
 var lifecyclePreview = testRecoveryMap && query.get("lifecycle_preview") === "1";
-var state = { authStage: AUTH_STAGES.LOGIN, email: "", session: null, profile: null, section: "overview", cooldownUntil: 0, notice: "" };
+var state = { authStage: AUTH_STAGES.LOGIN, email: "", session: null, profile: null, section: "overview", cooldownUntil: 0, cooldownTimer: null, notice: "", requestInFlight: false, recoveryEmailSent: false, recoveryIntent: hasRecoveryIntent({ hash: location.hash, search: location.search, href: location.href }) };
 var esc2 = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 document.addEventListener("click", (event) => {
   const menu = event.target.closest("#menu");
@@ -20414,13 +20428,13 @@ document.addEventListener("click", (event) => {
   menu.setAttribute("aria-expanded", String(open));
 });
 function shell(content) {
-  const header = skrekGlobalHeader({ activeRoute: "", mode: "map", productBase: "../v3-crypto/index.html?release=global-nav-v1", accountBase: "/web/account/index.html" });
+  const header = skrekGlobalHeader({ activeRoute: "", mode: "map", productBase: "../v3-crypto/index.html?release=global-nav-v1", accountBase: "./index.html", logoBase: "../assets/skrek-logo-formal.png?v=20260814-hd", recoveryBase: "../recover.html?source=recovery-center" });
   return `<header id="site-header" class="global-header-host">${header}</header><main>${content}</main>`;
 }
 function message(text, type = "error") {
   return `<p class="form-message ${type}" role="status">${esc2(text)}</p>`;
 }
-var hashForStage = (stage) => ({ [AUTH_STAGES.LOGIN]: "login", [AUTH_STAGES.SIGNUP_EMAIL]: "signup", [AUTH_STAGES.SIGNUP_OTP]: "verify", [AUTH_STAGES.SET_PASSWORD]: "set-password", [AUTH_STAGES.ACCOUNT_COMPLETION]: "complete-account", [AUTH_STAGES.PASSWORD_RECOVERY_REQUEST]: "forgot", [AUTH_STAGES.PASSWORD_RECOVERY_SESSION]: "reset-password", [AUTH_STAGES.RESET_PASSWORD]: "reset-password" })[stage] ?? "";
+var hashForStage = (stage) => ({ [AUTH_STAGES.LOGIN]: "login", [AUTH_STAGES.NEW_SIGNUP]: "signup", [AUTH_STAGES.VERIFICATION_PENDING]: "verify", [AUTH_STAGES.HISTORICAL_VERIFICATION_PENDING]: "verify-incomplete", [AUTH_STAGES.SET_PASSWORD]: "set-password", [AUTH_STAGES.ACCOUNT_COMPLETE]: "account", [AUTH_STAGES.FORGOT_PASSWORD]: "forgot", [AUTH_STAGES.PASSWORD_RECOVERY_SESSION]: "reset-password", [AUTH_STAGES.RESET_PASSWORD]: "reset-password", [AUTH_STAGES.PASSWORD_RESET_COMPLETE]: "password-reset-complete" })[stage] ?? "";
 function setStage(stage, { replaceHash = true } = {}) {
   state.authStage = stage;
   if (replaceHash) {
@@ -20445,82 +20459,170 @@ function friendly(error, context = "general") {
 function validPassword(value) {
   return value.length >= 10 && /[A-Za-z]/.test(value) && /\d/.test(value) && /[^A-Za-z0-9]/.test(value);
 }
-function temporaryPassword() {
-  const bytes = crypto.getRandomValues(new Uint8Array(24));
-  return `${Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("")}Aa1!`;
+function remainingCooldown() {
+  return Math.max(0, Math.ceil((state.cooldownUntil - Date.now()) / 1e3));
+}
+function updateCooldownUI() {
+  const seconds = remainingCooldown(), button = document.querySelector("[data-email-action]"), status = document.querySelector("[data-countdown]");
+  if (button) button.textContent = seconds ? `\u91CD\u65B0\u53D1\u9001\uFF08${seconds}s\uFF09` : "\u91CD\u65B0\u53D1\u9001";
+  if (status) status.textContent = seconds ? `${seconds} \u79D2\u540E\u53EF\u91CD\u65B0\u53D1\u9001` : "\u73B0\u5728\u53EF\u4EE5\u91CD\u65B0\u53D1\u9001\u3002";
+  if (!seconds && state.cooldownTimer) {
+    clearInterval(state.cooldownTimer);
+    state.cooldownTimer = null;
+  }
+}
+function startCooldown() {
+  state.cooldownUntil = Date.now() + 6e4;
+  if (state.cooldownTimer) clearInterval(state.cooldownTimer);
+  state.cooldownTimer = setInterval(updateCooldownUI, 1e3);
+  queueMicrotask(updateCooldownUI);
+}
+function resetCooldown() {
+  state.cooldownUntil = 0;
+  if (state.cooldownTimer) clearInterval(state.cooldownTimer);
+  state.cooldownTimer = null;
+}
+function duringCooldown() {
+  if (!remainingCooldown()) return false;
+  showFormError("\u8BF7\u7B49\u5F85\u5012\u8BA1\u65F6\u7ED3\u675F\u540E\u518D\u8BD5\u3002");
+  return true;
+}
+function beginRequest() {
+  if (state.requestInFlight) return false;
+  state.requestInFlight = true;
+  return true;
+}
+function endRequest() {
+  state.requestInFlight = false;
 }
 function renderLogin() {
   app.innerHTML = authCard("\u767B\u5F55 SKREK", "\u8FDB\u5165\u60A8\u7684\u5BA2\u6237\u4E2D\u5FC3\u3002", `${state.notice ? message(state.notice, "success") : ""}<form id="login-form"><label>\u90AE\u7BB1<input id="email" type="email" autocomplete="email" required></label><label>\u5BC6\u7801<input id="password" type="password" autocomplete="current-password" required></label><div id="form-message"></div><button type="submit">\u767B\u5F55</button></form><div class="auth-links"><button id="forgot" class="link-button">\u5FD8\u8BB0\u5BC6\u7801</button><button id="signup" class="link-button">\u521B\u5EFA\u8D26\u6237</button></div>`);
   state.notice = "";
   bind("#login-form", "submit", async (event) => {
     event.preventDefault();
+    if (!beginRequest()) return;
     const button = event.submitter;
     button.disabled = true;
     const { data, error } = await supabase.auth.signInWithPassword({ email: document.querySelector("#email").value.trim(), password: document.querySelector("#password").value });
+    endRequest();
     if (error) {
       button.disabled = false;
       showFormError(friendly(error, "login"));
       return;
     }
     state.session = data.session;
-    await loadAuthenticatedAccount({ loginSucceeded: true });
+    await loadAuthenticatedAccount();
   });
-  bind("#forgot", "click", () => setStage(AUTH_STAGES.PASSWORD_RECOVERY_REQUEST));
-  bind("#signup", "click", () => setStage(AUTH_STAGES.SIGNUP_EMAIL));
+  bind("#forgot", "click", () => {
+    resetCooldown();
+    state.recoveryEmailSent = false;
+    setStage(AUTH_STAGES.FORGOT_PASSWORD);
+  });
+  bind("#signup", "click", () => {
+    resetCooldown();
+    setStage(AUTH_STAGES.NEW_SIGNUP);
+  });
 }
 function renderSignup() {
-  app.innerHTML = authCard("\u521B\u5EFA SKREK \u8D26\u6237", "\u6211\u4EEC\u4F1A\u5411\u60A8\u7684\u90AE\u7BB1\u53D1\u9001\u771F\u5B9E\u76846\u4F4D\u9A8C\u8BC1\u7801\u3002", `<form id="signup-form"><label>\u90AE\u7BB1\u5730\u5740<input id="email" type="email" autocomplete="email" required></label><div id="form-message"></div><button type="submit">\u83B7\u53D6\u9A8C\u8BC1\u7801</button></form><div class="auth-links"><button id="login" class="link-button">\u5DF2\u6709\u8D26\u6237\uFF1F\u767B\u5F55</button></div>`);
+  app.innerHTML = authCard("\u521B\u5EFA SKREK \u8D26\u6237", "\u5148\u8BBE\u7F6E\u60A8\u7684\u767B\u5F55\u5BC6\u7801\uFF0C\u518D\u9A8C\u8BC1\u90AE\u7BB1\u3002", `<form id="signup-form"><label>\u90AE\u7BB1\u5730\u5740<input id="email" type="email" autocomplete="email" required></label><label>\u5BC6\u7801<input id="password" type="password" autocomplete="new-password" required></label><small>\u81F3\u5C1110\u4F4D\uFF0C\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002</small><label>\u786E\u8BA4\u5BC6\u7801<input id="confirm" type="password" autocomplete="new-password" required></label><div id="form-message"></div><button type="submit">\u83B7\u53D6\u9A8C\u8BC1\u7801</button></form><div class="auth-links"><button id="login" class="link-button">\u5DF2\u6709\u8D26\u6237\uFF1F\u767B\u5F55</button></div>`);
   bind("#signup-form", "submit", async (event) => {
     event.preventDefault();
-    const button = event.submitter, email = document.querySelector("#email").value.trim();
-    button.disabled = true;
-    const { data, error } = await supabase.auth.signUp({ email, password: temporaryPassword(), options: { data: { skrek_account_state: "PASSWORD_REQUIRED" }, emailRedirectTo: `${authCallbackUrl}#verify` } });
+    const email = document.querySelector("#email").value.trim(), password = document.querySelector("#password").value, confirm = document.querySelector("#confirm").value;
+    if (password !== confirm) return showFormError("\u4E24\u6B21\u8F93\u5165\u7684\u5BC6\u7801\u4E0D\u4E00\u81F4\u3002");
+    if (!validPassword(password)) return showFormError("\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002");
+    if (!beginRequest()) return;
+    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { skrek_account_state: "ACCOUNT_COMPLETE_PENDING_VERIFICATION" }, emailRedirectTo: signupCallbackUrl } });
+    endRequest();
     if (error) {
-      button.disabled = false;
       showFormError(friendly(error, "signup"));
       return;
     }
+    state.email = email;
     if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-      button.disabled = false;
-      showFormError("\u6B64\u90AE\u7BB1\u65E0\u6CD5\u7EE7\u7EED\u6CE8\u518C\u3002\u8BF7\u767B\u5F55\uFF1B\u5982\u672A\u8BBE\u7F6E\u8FC7\u5BC6\u7801\uFF0C\u8BF7\u4F7F\u7528\u201C\u5FD8\u8BB0\u5BC6\u7801\u201D\u3002");
+      renderExistingAccount();
       return;
     }
-    state.email = email;
-    state.cooldownUntil = Date.now() + 6e4;
-    setStage(AUTH_STAGES.SIGNUP_OTP);
+    startCooldown();
+    state.notice = "\u9A8C\u8BC1\u7801\u5DF2\u53D1\u9001\uFF0C\u8BF7\u68C0\u67E5\u60A8\u7684\u90AE\u7BB1\u3002";
+    setStage(AUTH_STAGES.VERIFICATION_PENDING);
   });
   bind("#login", "click", () => setStage(AUTH_STAGES.LOGIN));
 }
-function renderVerify() {
-  app.innerHTML = authCard("\u8F93\u5165\u90AE\u7BB1\u9A8C\u8BC1\u7801", `\u9A8C\u8BC1\u7801\u5DF2\u53D1\u9001\u81F3 ${esc2(state.email)}\u3002`, `<form id="verify-form"><label>6\u4F4D\u9A8C\u8BC1\u7801<input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required></label><div id="form-message"></div><button type="submit">\u9A8C\u8BC1\u90AE\u7BB1</button></form><div class="auth-links"><button id="resend" class="link-button">\u91CD\u65B0\u53D1\u9001\u9A8C\u8BC1\u7801</button><button id="change" class="link-button">\u66F4\u6362\u90AE\u7BB1</button></div>`);
+function renderExistingAccount() {
+  app.innerHTML = authCard("\u8BE5\u90AE\u7BB1\u5DF2\u6709 SKREK \u8D26\u6237", "\u8BF7\u76F4\u63A5\u767B\u5F55\u3002", `${message("\u8BE5\u90AE\u7BB1\u5DF2\u6709 SKREK \u8D26\u6237\uFF0C\u8BF7\u76F4\u63A5\u767B\u5F55\u3002", "success")}<div class="auth-links"><button id="login" class="primary-link">\u524D\u5F80\u767B\u5F55</button><button id="continue-incomplete" class="link-button">\u9A8C\u8BC1\u90AE\u7BB1\u5E76\u7EE7\u7EED\u672A\u5B8C\u6210\u7684\u8D26\u6237\u8BBE\u7F6E</button></div><div id="form-message"></div>`);
+  bind("#login", "click", () => setStage(AUTH_STAGES.LOGIN));
+  bind("#continue-incomplete", "click", requestHistoricalVerification);
+}
+async function requestHistoricalVerification() {
+  if (duringCooldown() || !beginRequest()) return;
+  const { error } = await supabase.auth.signInWithOtp({ email: state.email, options: { shouldCreateUser: false, emailRedirectTo: `${authCallbackUrl}?auth_action=incomplete#verify-incomplete` } });
+  endRequest();
+  if (error) {
+    showFormError(friendly(error, "otp"));
+    return;
+  }
+  startCooldown();
+  state.notice = "\u9A8C\u8BC1\u7801\u5DF2\u53D1\u9001\uFF0C\u8BF7\u68C0\u67E5\u60A8\u7684\u90AE\u7BB1\u3002";
+  setStage(AUTH_STAGES.HISTORICAL_VERIFICATION_PENDING);
+}
+function renderVerify({ historical = false } = {}) {
+  const confirmation = state.notice || "\u9A8C\u8BC1\u7801\u5DF2\u53D1\u9001\uFF0C\u8BF7\u68C0\u67E5\u60A8\u7684\u90AE\u7BB1\u3002";
+  state.notice = "";
+  app.innerHTML = authCard("\u8F93\u5165\u90AE\u7BB1\u9A8C\u8BC1\u7801", `${confirmation} \u9A8C\u8BC1\u7801\u6709\u6548\u671F\u4E3A10\u5206\u949F\u3002`, `<form id="verify-form"><label>6\u4F4D\u9A8C\u8BC1\u7801<input id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" required></label><div id="form-message"></div><button type="submit">\u9A8C\u8BC1\u90AE\u7BB1</button></form><p data-countdown></p><div class="auth-links"><button id="resend" data-email-action class="link-button">\u91CD\u65B0\u53D1\u9001</button><button id="change" class="link-button">\u66F4\u6362\u90AE\u7BB1</button></div>`);
+  updateCooldownUI();
   bind("#verify-form", "submit", async (event) => {
     event.preventDefault();
-    const button = event.submitter, token = document.querySelector("#otp").value.trim();
+    const token = document.querySelector("#otp").value.trim();
     if (!/^\d{6}$/.test(token)) return showFormError("\u8BF7\u8F93\u5165\u5B8C\u6574\u76846\u4F4D\u9A8C\u8BC1\u7801\u3002");
-    button.disabled = true;
-    const { data, error } = await supabase.auth.verifyOtp({ email: state.email, token, type: "signup" });
+    if (!beginRequest()) return;
+    event.submitter.disabled = true;
+    const { data, error } = await supabase.auth.verifyOtp({ email: state.email, token, type: historical ? "email" : "signup" });
+    endRequest();
     if (error) {
-      button.disabled = false;
+      event.submitter.disabled = false;
       showFormError(friendly(error, "otp"));
       return;
     }
     state.session = data.session;
-    setStage(AUTH_STAGES.SET_PASSWORD);
+    if (historical) {
+      const kind = accountKindFromMetadata(data.user?.user_metadata);
+      if (kind === "INCOMPLETE_HISTORICAL_ACCOUNT") {
+        setStage(AUTH_STAGES.SET_PASSWORD);
+        return;
+      }
+      await supabase.auth.signOut();
+      state.session = null;
+      state.notice = "\u8BE5\u90AE\u7BB1\u5DF2\u6709 SKREK \u8D26\u6237\uFF0C\u8BF7\u76F4\u63A5\u767B\u5F55\u3002";
+      setStage(AUTH_STAGES.LOGIN);
+      return;
+    }
+    const { data: updated, error: updateError } = await supabase.auth.updateUser({ data: { ...data.user?.user_metadata ?? {}, skrek_account_state: "COMPLETE" } });
+    if (updateError) {
+      showFormError(friendly(updateError));
+      return;
+    }
+    state.session = updated.user ? { ...data.session, user: updated.user } : data.session;
+    state.authStage = AUTH_STAGES.ACCOUNT_COMPLETE;
+    await loadAuthenticatedAccount();
   });
   bind("#resend", "click", async () => {
-    if (Date.now() < state.cooldownUntil) return showFormError("\u8BF7\u7B49\u5F8560\u79D2\u540E\u91CD\u65B0\u53D1\u9001\u3002");
-    const { error } = await supabase.auth.resend({ type: "signup", email: state.email, options: { emailRedirectTo: `${authCallbackUrl}#verify` } });
-    if (error) return showFormError(friendly(error, "otp"));
-    state.cooldownUntil = Date.now() + 6e4;
-    showFormError("\u65B0\u7684\u9A8C\u8BC1\u7801\u5DF2\u53D1\u9001\uFF0C\u4E4B\u524D\u7684\u9A8C\u8BC1\u7801\u5DF2\u88AB\u66FF\u6362\uFF0C\u8BF7\u4F7F\u7528\u6700\u65B0\u9A8C\u8BC1\u7801\u3002");
+    if (duringCooldown() || !beginRequest()) return;
+    const { error } = historical ? await supabase.auth.signInWithOtp({ email: state.email, options: { shouldCreateUser: false, emailRedirectTo: `${authCallbackUrl}?auth_action=incomplete#verify-incomplete` } }) : await supabase.auth.resend({ type: "signup", email: state.email, options: { emailRedirectTo: signupCallbackUrl } });
+    endRequest();
+    if (error) {
+      showFormError(friendly(error, "otp"));
+      return;
+    }
+    startCooldown();
+    showFormError("\u65B0\u7684\u9A8C\u8BC1\u7801\u5DF2\u53D1\u9001\uFF0C\u8BF7\u4F7F\u7528\u6700\u65B0\u6536\u5230\u7684\u9A8C\u8BC1\u7801\u3002");
   });
-  bind("#change", "click", () => setStage(AUTH_STAGES.SIGNUP_EMAIL));
+  bind("#change", "click", () => setStage(AUTH_STAGES.NEW_SIGNUP));
 }
 function passwordForm(title, intro, mode) {
   const hasSession2 = Boolean(state.session);
-  app.innerHTML = authCard(title, intro, hasSession2 ? `<form id="password-form"><label>\u65B0\u5BC6\u7801<input id="password" type="password" autocomplete="new-password" required></label><small>\u81F3\u5C1110\u4F4D\uFF0C\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002</small><label>\u786E\u8BA4\u5BC6\u7801<input id="confirm" type="password" autocomplete="new-password" required></label><div id="form-message"></div><button type="submit">\u4FDD\u5B58\u5E76\u7EE7\u7EED</button></form>` : `${message("\u5BC6\u7801\u6062\u590D\u94FE\u63A5\u65E0\u6548\u6216\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u3002")}<button id="request-recovery">\u91CD\u65B0\u7533\u8BF7\u5BC6\u7801\u6062\u590D</button>`);
+  app.innerHTML = authCard(title, intro, hasSession2 ? `<form id="password-form"><label>\u65B0\u5BC6\u7801<input id="password" type="password" autocomplete="new-password" required></label><small>\u81F3\u5C1110\u4F4D\uFF0C\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002</small><label>\u786E\u8BA4\u5BC6\u7801<input id="confirm" type="password" autocomplete="new-password" required></label><div id="form-message"></div><button type="submit">\u4FDD\u5B58\u5E76\u7EE7\u7EED</button></form>` : `${message("\u5BC6\u7801\u6062\u590D\u94FE\u63A5\u65E0\u6548\u6216\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u3002")}<button id="request-recovery">\u91CD\u65B0\u7533\u8BF7\u5BC6\u7801\u6062\u590D</button>`);
   if (!hasSession2) {
-    bind("#request-recovery", "click", () => setStage(AUTH_STAGES.PASSWORD_RECOVERY_REQUEST));
+    bind("#request-recovery", "click", () => setStage(AUTH_STAGES.FORGOT_PASSWORD));
     return;
   }
   bind("#password-form", "submit", async (event) => {
@@ -20528,9 +20630,11 @@ function passwordForm(title, intro, mode) {
     const button = event.submitter, password = document.querySelector("#password").value, confirm = document.querySelector("#confirm").value;
     if (password !== confirm) return showFormError("\u4E24\u6B21\u8F93\u5165\u7684\u5BC6\u7801\u4E0D\u4E00\u81F4\u3002");
     if (!validPassword(password)) return showFormError("\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002");
+    if (!beginRequest()) return;
     button.disabled = true;
-    const metadata = mode === "signup" ? { ...state.session.user.user_metadata ?? {}, skrek_account_state: "PASSWORD_SET" } : void 0;
+    const metadata = mode === "historical" ? { ...state.session.user.user_metadata ?? {}, skrek_account_state: "COMPLETE" } : void 0;
     const { data, error } = await supabase.auth.updateUser({ password, ...metadata ? { data: metadata } : {} });
+    endRequest();
     if (error) {
       button.disabled = false;
       showFormError(friendly(error, mode === "reset" ? "recovery-session" : "password"));
@@ -20538,57 +20642,44 @@ function passwordForm(title, intro, mode) {
     }
     state.session = data.user ? { ...state.session, user: data.user } : state.session;
     if (mode === "reset") {
+      state.authStage = AUTH_STAGES.PASSWORD_RESET_COMPLETE;
+      state.recoveryIntent = false;
       await supabase.auth.signOut();
       state.session = null;
       state.profile = null;
-      state.notice = "\u5BC6\u7801\u5DF2\u6210\u529F\u66F4\u65B0\uFF0C\u8BF7\u4F7F\u7528\u65B0\u5BC6\u7801\u767B\u5F55\u3002";
-      setStage(AUTH_STAGES.LOGIN);
+      render();
       return;
     }
     if (mode === "change") {
       state.notice = "\u5BC6\u7801\u5DF2\u6210\u529F\u66F4\u65B0\u3002";
-      setStage(AUTH_STAGES.AUTHENTICATED_COMPLETE);
+      setStage(AUTH_STAGES.ACCOUNT_COMPLETE);
       return;
     }
-    setStage(AUTH_STAGES.ACCOUNT_COMPLETION);
+    state.authStage = AUTH_STAGES.ACCOUNT_COMPLETE;
+    await loadAuthenticatedAccount();
   });
 }
-function renderAccountCompletion() {
-  app.innerHTML = authCard("\u5B8C\u6210\u8D26\u6237\u8BBE\u7F6E", "\u8BBE\u7F6E\u552F\u4E00\u7528\u6237\u540D\u540E\u5373\u53EF\u8FDB\u5165\u5BA2\u6237\u4E2D\u5FC3\u3002", `<form id="completion-form"><label>\u7528\u6237\u540D<input id="username" autocomplete="username" minlength="3" maxlength="30" pattern="[A-Za-z0-9_]+" required></label><small>3\u201330\u4F4D\u82F1\u6587\u5B57\u6BCD\u3001\u6570\u5B57\u6216\u4E0B\u5212\u7EBF\uFF1B\u7528\u6237\u540D\u5168\u5E73\u53F0\u552F\u4E00\u3002</small><div id="form-message"></div><button type="submit">\u5B8C\u6210\u8D26\u6237\u8BBE\u7F6E</button></form>`);
-  bind("#completion-form", "submit", async (event) => {
-    event.preventDefault();
-    const button = event.submitter, desired_username = document.querySelector("#username").value.trim();
-    button.disabled = true;
-    const { error: usernameError } = await supabase.rpc("claim_username", { desired_username });
-    if (usernameError) {
-      button.disabled = false;
-      showFormError(friendly(usernameError, "profile"));
-      return;
-    }
-    const { data, error } = await supabase.auth.updateUser({ data: { ...state.session?.user?.user_metadata ?? {}, username: desired_username, skrek_account_state: "COMPLETE" } });
-    if (error) {
-      button.disabled = false;
-      showFormError(friendly(error, "profile"));
-      return;
-    }
-    state.session = data.user ? { ...state.session, user: data.user } : state.session;
-    state.profile = await ensureProfile();
-    setStage(AUTH_STAGES.AUTHENTICATED_COMPLETE);
-  });
+function renderPasswordResetComplete() {
+  app.innerHTML = authCard("\u5BC6\u7801\u5DF2\u91CD\u65B0\u8BBE\u7F6E\u5B8C\u6210", "\u60A8\u7684 SKREK \u767B\u5F55\u5BC6\u7801\u5DF2\u6210\u529F\u66F4\u65B0\u3002\u60A8\u73B0\u5728\u53EF\u4EE5\u8FD4\u56DE SKREK \u7F51\u7AD9\uFF0C\u4F7F\u7528\u65B0\u5BC6\u7801\u91CD\u65B0\u767B\u5F55\u3002", '<a class="primary-link" href="./index.html#login">\u8FD4\u56DE SKREK \u767B\u5F55</a>');
 }
 function renderForgot() {
-  app.innerHTML = authCard("\u5FD8\u8BB0\u5BC6\u7801", "\u8F93\u5165\u6CE8\u518C\u90AE\u7BB1\uFF0C\u6211\u4EEC\u4F1A\u53D1\u9001\u5B89\u5168\u7684\u5BC6\u7801\u91CD\u7F6E\u90AE\u4EF6\u3002", `<form id="forgot-form"><label>\u6CE8\u518C\u90AE\u7BB1<input id="email" type="email" autocomplete="email" required></label><div id="form-message"></div><button type="submit">\u53D1\u9001\u91CD\u7F6E\u90AE\u4EF6</button></form><div class="auth-links"><button id="login" class="link-button">\u8FD4\u56DE\u767B\u5F55</button></div>`);
+  const sent = state.recoveryEmailSent ? message("\u5BC6\u7801\u91CD\u7F6E\u8BF7\u6C42\u5DF2\u63D0\u4EA4\u3002\u5982\u679C\u8FD9\u662F\u60A8\u7684 SKREK \u6CE8\u518C\u90AE\u7BB1\uFF0C\u8BF7\u68C0\u67E5\u6536\u4EF6\u7BB1\u5E76\u6309\u7167\u90AE\u4EF6\u63D0\u793A\u8BBE\u7F6E\u65B0\u5BC6\u7801\u3002", "success") : "";
+  app.innerHTML = authCard("\u5FD8\u8BB0\u5BC6\u7801", "\u8F93\u5165\u6CE8\u518C\u90AE\u7BB1\uFF0C\u6211\u4EEC\u4F1A\u53D1\u9001\u5B89\u5168\u7684\u5BC6\u7801\u91CD\u7F6E\u90AE\u4EF6\u3002", `<form id="forgot-form"><label>\u6CE8\u518C\u90AE\u7BB1<input id="email" type="email" autocomplete="email" value="${esc2(state.email)}" required></label>${sent}<div id="form-message"></div><button type="submit" data-email-action>${state.recoveryEmailSent ? "\u91CD\u65B0\u53D1\u9001" : "\u53D1\u9001\u91CD\u7F6E\u90AE\u4EF6"}</button><p data-countdown></p></form><div class="auth-links"><button id="login" class="link-button">\u8FD4\u56DE\u767B\u5F55</button></div>`);
+  updateCooldownUI();
+  if (!state.recoveryEmailSent) document.querySelector("[data-email-action]").textContent = "\u53D1\u9001\u91CD\u7F6E\u90AE\u4EF6";
   bind("#forgot-form", "submit", async (event) => {
     event.preventDefault();
-    const button = event.submitter;
-    button.disabled = true;
-    const { error } = await supabase.auth.resetPasswordForEmail(document.querySelector("#email").value.trim(), { redirectTo: `${authCallbackUrl}#reset-password` });
+    if (duringCooldown() || !beginRequest()) return;
+    state.email = document.querySelector("#email").value.trim();
+    const { error } = await supabase.auth.resetPasswordForEmail(state.email, { redirectTo: recoveryCallbackUrl });
+    endRequest();
     if (error) {
-      button.disabled = false;
       showFormError(friendly(error, "recovery-request"));
       return;
     }
-    document.querySelector("#form-message").outerHTML = message("\u5982\u679C\u8BE5\u90AE\u7BB1\u5DF2\u6CE8\u518C\uFF0C\u6211\u4EEC\u4F1A\u53D1\u9001\u5BC6\u7801\u91CD\u7F6E\u8BF4\u660E\u3002", "success");
+    state.recoveryEmailSent = true;
+    startCooldown();
+    renderForgot();
   });
   bind("#login", "click", () => setStage(AUTH_STAGES.LOGIN));
 }
@@ -20666,7 +20757,7 @@ function centerContent(data) {
   if (state.section === "orders") return `<h1>\u6211\u7684\u8BA2\u5355</h1>${data.orders.length ? `<div class="record-list">${data.orders.map((item) => `<article><h2>${esc2(item.order_number)}</h2><p>${esc2(item.plan)} \xB7 ${(item.amount_minor / 100).toFixed(2)} ${esc2(item.currency)} \xB7 ${esc2(item.payment_status)}</p></article>`).join("")}</div>` : empty("\u5F53\u524D\u6CA1\u6709\u771F\u5B9E\u8BA2\u5355")}`;
   if (state.section === "reviews") return `<h1>\u5E74\u5EA6\u68C0\u67E5</h1>${data.reviews.length ? `<div class="record-list">${data.reviews.map((item) => `<article><h2>${esc2(item.status)}</h2><p>\u4E0A\u6B21\u68C0\u67E5\uFF1A${item.last_reviewed_at ? new Date(item.last_reviewed_at).toLocaleDateString("zh-CN") : "\u5C1A\u672A\u68C0\u67E5"}</p><p>\u4E0B\u6B21\u5EFA\u8BAE\uFF1A${item.next_review_at ? new Date(item.next_review_at).toLocaleDateString("zh-CN") : "\u5C1A\u672A\u8BBE\u7F6E"}</p></article>`).join("")}</div>` : empty("\u5F53\u524D\u6CA1\u6709\u5E74\u5EA6\u68C0\u67E5\u8BB0\u5F55")}`;
   if (state.section === "support") return `<div class="support-placeholder"><p class="eyebrow">SUPPORT CENTER</p><h1>\u5BA2\u670D\u4E2D\u5FC3</h1><p>\u5728\u8FD9\u91CC\u83B7\u53D6\u4EA7\u54C1\u4F7F\u7528\u4E0E\u8D26\u6237\u652F\u6301\u3002\u667A\u80FD\u95EE\u7B54\u3001Knowledge Base \u8054\u52A8\u3001\u8F6C\u4EBA\u5DE5\u53CA\u591A\u8BED\u8A00\u5BA2\u670D\u5C06\u5728\u540E\u7EED\u9636\u6BB5\u63A5\u5165\u3002</p><div><a class="primary-link" href="../v3-crypto/index.html#knowledge">\u6D4F\u89C8\u77E5\u8BC6\u5E93</a><a class="secondary-link" href="../v3-crypto/index.html#about">\u8054\u7CFB\u6211\u4EEC</a></div></div>`;
-  return `<h1>\u8D26\u6237\u4E0E\u5B89\u5168</h1><section class="center-card"><dl><dt>\u7528\u6237\u540D</dt><dd>${esc2(data.profile.username || "\u5C1A\u672A\u8BBE\u7F6E")}</dd><dt>\u5F53\u524D\u90AE\u7BB1</dt><dd>${esc2(state.session.user.email)}</dd><dt>\u90AE\u7BB1\u72B6\u6001</dt><dd>${state.session.user.email_confirmed_at ? "\u5DF2\u9A8C\u8BC1" : "\u672A\u9A8C\u8BC1"}</dd></dl>${data.profile.username ? "" : `<form id="username-form"><label>\u8BBE\u7F6E\u552F\u4E00\u7528\u6237\u540D<input id="username" minlength="3" maxlength="30" pattern="[A-Za-z0-9_]+" required></label><div id="form-message"></div><button>\u4FDD\u5B58\u7528\u6237\u540D</button></form>`}<div class="security-actions"><button id="change-password">\u4FEE\u6539\u5BC6\u7801</button><button id="forgot-password">\u5FD8\u8BB0\u5BC6\u7801</button></div></section>`;
+  return `<h1>\u8D26\u6237\u4E0E\u5B89\u5168</h1><section class="center-card"><dl><dt>SKREK \u8D26\u6237</dt><dd>${esc2(state.session.user.email)}</dd><dt>\u90AE\u7BB1\u72B6\u6001</dt><dd>${state.session.user.email_confirmed_at ? "\u5DF2\u9A8C\u8BC1" : "\u672A\u9A8C\u8BC1"}</dd></dl><div class="security-actions"><button id="change-password">\u4FEE\u6539\u5BC6\u7801</button><button id="forgot-password">\u5FD8\u8BB0\u5BC6\u7801</button></div></section>`;
 }
 async function renderCenter() {
   app.innerHTML = shell('<section class="loading">\u6B63\u5728\u5B89\u5168\u8BFB\u53D6\u60A8\u7684\u8D26\u6237\u6570\u636E\u2026</section>');
@@ -20686,18 +20777,9 @@ async function renderCenter() {
       setStage(AUTH_STAGES.LOGIN);
     });
     bind("#change-password", "click", () => passwordForm("\u4FEE\u6539\u767B\u5F55\u5BC6\u7801", "\u8BBE\u7F6E\u65B0\u7684 SKREK \u767B\u5F55\u5BC6\u7801\u3002", "change"));
-    bind("#forgot-password", "click", () => setStage(AUTH_STAGES.PASSWORD_RECOVERY_REQUEST));
-    bind("#username-form", "submit", async (event) => {
-      event.preventDefault();
-      const button = event.submitter;
-      button.disabled = true;
-      const { error } = await supabase.rpc("claim_username", { desired_username: document.querySelector("#username").value.trim() });
-      if (error) {
-        button.disabled = false;
-        showFormError(friendly(error));
-        return;
-      }
-      await renderCenter();
+    bind("#forgot-password", "click", () => {
+      state.recoveryEmailSent = false;
+      setStage(AUTH_STAGES.FORGOT_PASSWORD);
     });
     document.querySelectorAll("[data-version-info]").forEach((button) => button.onclick = () => {
       const details = button.closest("article").querySelector(".version-history");
@@ -20713,11 +20795,11 @@ function renderPaymentPending() {
   const identity = state.profile?.username || state.session.user.email.split("@")[0], displayedPrice = purchase.currency && purchase.price ? `${purchase.currency} ${purchase.currency === "USD" ? "US$" : "A$"}${Number(purchase.price).toLocaleString("en-US")}` : "\u5C1A\u672A\u63D0\u4F9B";
   app.innerHTML = shell(`<section class="auth-layout"><div class="auth-card payment-pending"><p class="eyebrow">PURCHASE \xB7 NEXT STEP</p><h1>\u4ED8\u6B3E\u6D41\u7A0B\u5F85\u63A5\u5165</h1><p>\u60A8\u7684\u8EAB\u4EFD\u4E0E\u5957\u9910\u9009\u62E9\u5DF2\u5B89\u5168\u5173\u8054\u3002\u771F\u5B9E\u4ED8\u6B3E\u670D\u52A1\u5C06\u5728\u4E0B\u4E00\u9636\u6BB5\u63A5\u5165\uFF1B\u5F53\u524D\u4E0D\u4F1A\u521B\u5EFA\u8BA2\u5355\u3001\u4E0D\u4F1A\u6807\u8BB0\u4ED8\u6B3E\u6210\u529F\uFF0C\u4E5F\u4E0D\u4F1A\u8FDB\u5165\u4ED8\u8D39\u521B\u5EFA\u6D41\u7A0B\u3002</p><dl><dt>\u5957\u9910</dt><dd>${esc2(purchase.plan || "\u5C1A\u672A\u9009\u62E9")}</dd><dt>\u663E\u793A\u4EF7\u683C</dt><dd>${esc2(displayedPrice)}</dd><dt>\u7528\u6237\u540D</dt><dd>${esc2(identity)}</dd><dt>\u90AE\u7BB1</dt><dd>${esc2(state.session.user.email)}</dd></dl>${testRecoveryMap ? '<aside class="test-only-notice"><strong>\u6D4B\u8BD5\u73AF\u5883</strong><span>\u5F53\u524D\u4ED8\u6B3E\u670D\u52A1\u5C1A\u672A\u6B63\u5F0F\u63A5\u5165\uFF0C\u201C\u786E\u8BA4\u7EE7\u7EED\u201D\u4EC5\u7528\u4E8E\u5F53\u524D\u4EA7\u54C1\u6D4B\u8BD5\u95ED\u73AF\uFF1B\u4E0D\u4F1A\u521B\u5EFA\u771F\u5B9E\u652F\u4ED8\u8BB0\u5F55\u3001\u8BA2\u5355\u6216\u4ED8\u6B3E\u6210\u529F\u72B6\u6001\u3002</span></aside><a class="primary-link test-recovery-link" href="/web/v2/index.html?test_recovery_map=1#accounts">\u786E\u8BA4\u7EE7\u7EED</a>' : ""}<a class="secondary-link" href="../v3-crypto/index.html?release=pricing-products-v2#pricing">\u8FD4\u56DE\u4EA7\u54C1\u4E0E\u670D\u52A1</a></div></section>`);
 }
-async function loadAuthenticatedAccount({ loginSucceeded = false } = {}) {
+async function loadAuthenticatedAccount() {
   state.profile = await ensureProfile();
   const credentialState = state.session?.user?.user_metadata?.skrek_account_state ?? "";
-  state.authStage = loginSucceeded && !state.profile?.username ? AUTH_STAGES.ACCOUNT_COMPLETION : resolveAuthenticatedStage({ stage: state.authStage, hasSession: true, profileComplete: Boolean(state.profile?.username), credentialState });
-  if (state.authStage === AUTH_STAGES.AUTHENTICATED_COMPLETE) {
+  state.authStage = resolveAuthenticatedStage({ stage: state.authStage, hasSession: true, credentialState });
+  if (state.authStage === AUTH_STAGES.ACCOUNT_COMPLETE) {
     await retryPendingPublishedLifecycleSync().catch(() => {
     });
     if (purchase.active) return renderPaymentPending();
@@ -20729,21 +20811,21 @@ async function loadSession() {
   if (lifecyclePreview) {
     state.session = { user: { id: "preview-customer", email: "preview@skrek.test", email_confirmed_at: "2026-09-01T09:00:00.000Z" } };
     state.profile = { user_id: "preview-customer", email: "preview@skrek.test", username: "preview_customer" };
-    state.authStage = AUTH_STAGES.AUTHENTICATED_COMPLETE;
+    state.authStage = AUTH_STAGES.ACCOUNT_COMPLETE;
     state.section = query.get("section") === "maps" ? "maps" : "overview";
     return renderCenter();
   }
-  const requested = stageFromHash(location.hash);
+  const requested = stageFromLocation({ hash: location.hash, search: location.search, href: location.href });
   state.authStage = requested;
   const { data: { session }, error } = await supabase.auth.getSession();
   if (error) {
     state.session = null;
-    state.authStage = requested === AUTH_STAGES.RESET_PASSWORD ? AUTH_STAGES.RESET_PASSWORD : AUTH_STAGES.LOGIN;
+    state.authStage = state.recoveryIntent ? AUTH_STAGES.RESET_PASSWORD : AUTH_STAGES.LOGIN;
     return render();
   }
   state.session = session;
   if (session) {
-    if (requested === AUTH_STAGES.RESET_PASSWORD) {
+    if (state.recoveryIntent) {
       state.authStage = AUTH_STAGES.RESET_PASSWORD;
       return render();
     }
@@ -20757,28 +20839,30 @@ function render() {
     app.innerHTML = authCard("\u8D26\u6237\u670D\u52A1\u5C1A\u672A\u914D\u7F6E", "\u7F3A\u5C11\u516C\u5F00\u7684 Supabase \u9879\u76EE\u914D\u7F6E\u3002", "");
     return;
   }
-  if (state.authStage === AUTH_STAGES.SET_PASSWORD) return passwordForm("\u8BBE\u7F6E\u767B\u5F55\u5BC6\u7801", "\u90AE\u7BB1\u9A8C\u8BC1\u6210\u529F\u3002\u8BF7\u8BBE\u7F6E\u6B63\u5F0F\u767B\u5F55\u5BC6\u7801\u3002", "signup");
-  if (state.authStage === AUTH_STAGES.ACCOUNT_COMPLETION) return renderAccountCompletion();
-  if (state.authStage === AUTH_STAGES.PASSWORD_RECOVERY_SESSION || state.authStage === AUTH_STAGES.RESET_PASSWORD) return passwordForm("\u91CD\u7F6E\u767B\u5F55\u5BC6\u7801", "\u8BF7\u8BBE\u7F6E\u65B0\u7684 SKREK \u767B\u5F55\u5BC6\u7801\u3002", "reset");
-  if (state.authStage === AUTH_STAGES.SIGNUP_EMAIL) return renderSignup();
-  if (state.authStage === AUTH_STAGES.SIGNUP_OTP) return renderVerify();
-  if (state.authStage === AUTH_STAGES.PASSWORD_RECOVERY_REQUEST) return renderForgot();
-  if (state.authStage === AUTH_STAGES.AUTHENTICATED_COMPLETE && state.session) return renderCenter();
+  if (state.authStage === AUTH_STAGES.SET_PASSWORD) return passwordForm("\u5B8C\u6210\u8D26\u6237\u8BBE\u7F6E", "\u60A8\u7684\u8D26\u6237\u8BBE\u7F6E\u5C1A\u672A\u5B8C\u6210\u3002\u8BF7\u8BBE\u7F6E\u60A8\u81EA\u5DF1\u7684 SKREK \u767B\u5F55\u5BC6\u7801\u3002", "historical");
+  if (state.authStage === AUTH_STAGES.PASSWORD_RECOVERY_SESSION || state.authStage === AUTH_STAGES.RESET_PASSWORD) return passwordForm("\u8BBE\u7F6E\u65B0\u5BC6\u7801", "\u8BF7\u8F93\u5165\u65B0\u7684 SKREK \u767B\u5F55\u5BC6\u7801\u3002", "reset");
+  if (state.authStage === AUTH_STAGES.PASSWORD_RESET_COMPLETE) return renderPasswordResetComplete();
+  if (state.authStage === AUTH_STAGES.NEW_SIGNUP) return renderSignup();
+  if (state.authStage === AUTH_STAGES.VERIFICATION_PENDING) return renderVerify();
+  if (state.authStage === AUTH_STAGES.HISTORICAL_VERIFICATION_PENDING) return renderVerify({ historical: true });
+  if (state.authStage === AUTH_STAGES.FORGOT_PASSWORD) return renderForgot();
+  if (state.authStage === AUTH_STAGES.ACCOUNT_COMPLETE && state.session) return renderCenter();
   return renderLogin();
 }
 if (configured) {
   supabase.auth.onAuthStateChange((event, session) => {
     state.session = session;
-    if (event === "PASSWORD_RECOVERY") {
+    if (event === "PASSWORD_RECOVERY" || state.recoveryIntent && session && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
+      state.recoveryIntent = true;
       state.authStage = AUTH_STAGES.RESET_PASSWORD;
       queueMicrotask(render);
     } else if (event === "SIGNED_OUT") {
       state.session = null;
       state.profile = null;
-      state.authStage = AUTH_STAGES.LOGIN;
+      if (state.authStage !== AUTH_STAGES.PASSWORD_RESET_COMPLETE) state.authStage = AUTH_STAGES.LOGIN;
       queueMicrotask(render);
     }
   });
 }
-state.authStage = stageFromHash(location.hash);
+state.authStage = stageFromLocation({ hash: location.hash, search: location.search, href: location.href });
 await loadSession();

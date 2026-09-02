@@ -2363,7 +2363,7 @@ ${cause.stack}`;
     * @remarks
     * When using `count` with `.range()` or `.limit()`, the returned `count` is the total number of rows
     * that match your filters, not the number of rows in the current page. Use this to build pagination UI.
-
+    
     * - By default, Supabase projects return a maximum of 1,000 rows. This setting can be changed in your project's [API settings](/dashboard/project/_/settings/api). It's recommended that you keep it low to limit the payload size of accidental or malicious requests. You can use `range()` queries to paginate through your data.
     * - `select()` can be combined with [Filters](/docs/reference/javascript/using-filters)
     * - `select()` can be combined with [Modifiers](/docs/reference/javascript/using-modifiers)
@@ -2622,7 +2622,7 @@ ${cause.stack}`;
     *       name
     *     )
     *   `)
-    *
+    *   
     * ```
     *
     * @exampleSql Query referenced tables through a join table
@@ -2691,7 +2691,7 @@ ${cause.stack}`;
     *     "status": 200,
     *     "statusText": "OK"
     *   }
-    *
+    *   
     * ```
     *
     * @exampleDescription Query the same referenced table multiple times
@@ -2782,7 +2782,7 @@ ${cause.stack}`;
     *         )
     *       )
     *     `)
-    *
+    *   
     * ```
     *
     * @exampleSql Query nested foreign tables through a join table
@@ -2870,7 +2870,7 @@ ${cause.stack}`;
     *     "status": 200,
     *     "statusText": "OK"
     *   }
-    *
+    *   
     * ```
     *
     * @exampleDescription Filtering through referenced tables
@@ -20255,12 +20255,10 @@ ${suffix}`;
 
   // src/account/account-nav-bridge.js
   var config = globalThis.SKREK_PUBLIC_CONFIG ?? {};
-  var accountUrl = "/web/account/index.html";
+  var accountUrl = new URL("./index.html", document.currentScript?.src ?? location.href).pathname;
   var identity = "";
   function displayName(session) {
-    const username = session?.user?.user_metadata?.username;
-    if (username) return username;
-    return session?.user?.email?.split("@")[0] ?? "";
+    return session?.user?.email ?? "";
   }
   function paint() {
     document.querySelectorAll("[data-account-state]").forEach((link) => {
@@ -20272,12 +20270,8 @@ ${suffix}`;
   }
   if (config.supabaseUrl && config.supabaseAnonKey) {
     const client = createClient(config.supabaseUrl, config.supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true } });
-    client.auth.getSession().then(async ({ data: { session } }) => {
+    client.auth.getSession().then(({ data: { session } }) => {
       identity = displayName(session);
-      if (session) {
-        const { data } = await client.from("profiles").select("username").eq("user_id", session.user.id).maybeSingle();
-        identity = data?.username || identity;
-      }
       paint();
     });
     client.auth.onAuthStateChange((_event, session) => {
