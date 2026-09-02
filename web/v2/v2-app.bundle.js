@@ -23886,6 +23886,11 @@ function bindPurchaseInfoLinks() {
 function selectPlan(plan) {
   purchaseState = { ...purchaseState, selectedPlan: plan, paymentState: "IDLE", purchaseCompleted: false };
   persistPurchase();
+  const trigger = document.activeElement;
+  if (trigger instanceof HTMLButtonElement) {
+    trigger.disabled = true;
+    trigger.textContent = "\u6B63\u5728\u6253\u5F00\u2026";
+  }
   const params = new URLSearchParams({ purchase: "1", plan });
   if (purchaseTestMode) params.set("test", "1");
   location.href = `../account/index.html?${params.toString()}#signup`;

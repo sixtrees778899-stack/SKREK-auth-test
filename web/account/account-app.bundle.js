@@ -20891,15 +20891,14 @@ async function fetchCenter() {
     const publishedAt = "2026-09-01T10:18:00.000Z", version5 = { version_id: "version-preview-v1", version_number: 1, status: "CURRENT", published_at: publishedAt, txid: "P".repeat(43) };
     return { maps: [{ id: "map-preview-row", recovery_map_id: "map-preview-v1", display_name: "\u6211\u7684\u9996\u4EFD Recovery Map", lifecycle_state: "PUBLISHED", status: "PUBLISHED", published_at: publishedAt, current_version_id: "version-preview-row", versions: [version5], current_version: version5 }], materials: [], orders: [], reviews: [], profile: { user_id: "preview-customer", email: "preview@skrek.test", username: "preview_customer" } };
   }
-  const [maps, versions, materials, orders, reviews, profile] = await Promise.all([
+  const [maps, versions, materials, orders, reviews] = await Promise.all([
     supabase.from("recovery_maps").select("id,recovery_map_id,display_name,plan,status,lifecycle_state,published_at,current_version_id,created_at,updated_at").eq("lifecycle_state", "PUBLISHED").eq("status", "PUBLISHED").order("published_at", { ascending: false }),
     supabase.from("recovery_map_versions").select("id,recovery_map_id,version_id,version_number,status,published_at,created_at").order("version_number", { ascending: false }),
     supabase.from("recovery_materials").select("*").order("created_at", { ascending: false }),
     supabase.from("orders").select("*").order("created_at", { ascending: false }),
-    supabase.from("annual_reviews").select("*").order("created_at", { ascending: false }),
-    supabase.from("profiles").select("*").single()
+    supabase.from("annual_reviews").select("*").order("created_at", { ascending: false })
   ]);
-  const failure = [maps, versions, materials, orders, reviews, profile].find((result) => result.error);
+  const failure = [maps, versions, materials, orders, reviews].find((result) => result.error);
   if (failure) throw failure.error;
   const byMap = versions.data.reduce((result, item) => {
     const history2 = result.get(item.recovery_map_id) ?? [];
@@ -20910,7 +20909,7 @@ async function fetchCenter() {
     const history2 = byMap.get(item.id) ?? [], current = history2.find((version5) => version5.id === item.current_version_id && version5.status === "CURRENT") ?? null;
     return { ...item, versions: history2, current_version: current };
   }).filter((item) => item.current_version);
-  return { maps: formalMaps, materials: materials.data, orders: orders.data, reviews: reviews.data, profile: profile.data };
+  return { maps: formalMaps, materials: materials.data, orders: orders.data, reviews: reviews.data, profile: state.profile };
 }
 var centerLabels = { overview: "\u603B\u89C8", maps: "\u6211\u7684 Recovery Map", materials: "\u6062\u590D\u8D44\u6599\u72B6\u6001", reviews: "\u5E74\u5EA6\u68C0\u67E5", orders: "\u6211\u7684\u8BA2\u5355", support: "\u5BA2\u670D\u4E2D\u5FC3", security: "\u8D26\u6237\u4E0E\u5B89\u5168" };
 function empty(text, button = "") {
@@ -20955,7 +20954,7 @@ function centerContent(data) {
 async function renderCenter() {
   app.innerHTML = shell('<section class="loading">\u6B63\u5728\u5B89\u5168\u8BFB\u53D6\u60A8\u7684\u8D26\u6237\u6570\u636E\u2026</section>');
   try {
-    if (!lifecyclePreview) await ensureProfile();
+    if (!lifecyclePreview && !state.profile) await ensureProfile();
     const data = await fetchCenter();
     state.profile = data.profile;
     app.innerHTML = shell(`<div class="center-layout"><aside class="center-sidebar"><h2>\u5BA2\u6237\u4E2D\u5FC3</h2>${Object.entries(centerLabels).map(([id, label]) => `<button data-section="${id}" class="${state.section === id ? "active" : ""}">${label}</button>`).join("")}<div class="aside-footer"><a href="../v3-crypto/index.html#knowledge">\u77E5\u8BC6\u5E93 / \u5E2E\u52A9</a><button id="logout">\u9000\u51FA\u767B\u5F55</button></div></aside><section class="center-main">${centerContent(data)}</section></div>`);
@@ -21048,6 +21047,7 @@ async function loadSession() {
       state.authStage = AUTH_STAGES.RESET_PASSWORD;
       return render();
     }
+    if (purchase.active && testRecoveryMap) return continueTestPurchase();
     return loadAuthenticatedAccount();
   }
   state.authStage = resolveAuthenticatedStage({ stage: requested, hasSession: false });
