@@ -20509,10 +20509,13 @@ var supabase = configured ? createClient(config.supabaseUrl, config.supabaseAnon
 }) : null;
 var app = document.querySelector("#account-app");
 var query = new URLSearchParams(location.search);
+var localTestHost = ["localhost", "127.0.0.1"].includes(location.hostname);
+var pagesTestHost = location.hostname === "sixtrees778899-stack.github.io" && location.pathname.startsWith("/SKREK-auth-test/");
+var testRecoveryMap = localTestHost || pagesTestHost;
 var authCallbackUrl = "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/account/index.html";
 var signupCallbackUrl = `${authCallbackUrl}?auth_action=signup#verify`;
 var recoveryCallbackUrl = `${authCallbackUrl}?auth_action=recovery#reset-password`;
-var recoveryMapCreateUrl = "../v2/index.html?entry=guide&release=recovery-map-current-v2";
+var recoveryMapCreateUrl = `../v2/index.html?entry=guide&release=recovery-map-current-v2${testRecoveryMap ? "&test=1" : ""}`;
 var recoveryCallback = readRecoveryCallback(location.search);
 var supportedPurchaseCurrencies = /* @__PURE__ */ new Set(["USD", "AUD"]);
 var purchase = {
@@ -20521,7 +20524,6 @@ var purchase = {
   currency: supportedPurchaseCurrencies.has(query.get("currency")) ? query.get("currency") : "",
   price: /^\d+$/.test(query.get("price") ?? "") ? query.get("price") : ""
 };
-var testRecoveryMap = ["localhost", "127.0.0.1"].includes(location.hostname);
 var lifecyclePreview = testRecoveryMap && query.get("lifecycle_preview") === "1";
 var state = { authStage: AUTH_STAGES.LOGIN, email: "", session: null, profile: null, section: "overview", cooldownUntil: 0, cooldownTimer: null, notice: "", requestInFlight: false, recoveryEmailSent: false, recoveryIntent: hasRecoveryIntent({ hash: location.hash, search: location.search, href: location.href }), processingRecoveryCredential: false, recoveryFailureTemporary: false, resetSubmitAttempts: 0, lastResetFailureEvidence: null };
 var esc2 = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -20982,7 +20984,10 @@ async function renderCenter() {
 }
 function renderPaymentPending() {
   const identity = state.profile?.username || state.session.user.email.split("@")[0], displayedPrice = purchase.currency && purchase.price ? `${purchase.currency} ${purchase.currency === "USD" ? "US$" : "A$"}${Number(purchase.price).toLocaleString("en-US")}` : "\u5C1A\u672A\u63D0\u4F9B";
-  app.innerHTML = shell(`<section class="auth-layout"><div class="auth-card payment-pending"><p class="eyebrow">PURCHASE \xB7 NEXT STEP</p><h1>\u4ED8\u6B3E\u6D41\u7A0B\u5F85\u63A5\u5165</h1><p>\u60A8\u7684\u8EAB\u4EFD\u4E0E\u5957\u9910\u9009\u62E9\u5DF2\u5B89\u5168\u5173\u8054\u3002\u771F\u5B9E\u4ED8\u6B3E\u670D\u52A1\u5C06\u5728\u4E0B\u4E00\u9636\u6BB5\u63A5\u5165\uFF1B\u5F53\u524D\u4E0D\u4F1A\u521B\u5EFA\u8BA2\u5355\u3001\u4E0D\u4F1A\u6807\u8BB0\u4ED8\u6B3E\u6210\u529F\uFF0C\u4E5F\u4E0D\u4F1A\u8FDB\u5165\u4ED8\u8D39\u521B\u5EFA\u6D41\u7A0B\u3002</p><dl><dt>\u5957\u9910</dt><dd>${esc2(purchase.plan || "\u5C1A\u672A\u9009\u62E9")}</dd><dt>\u663E\u793A\u4EF7\u683C</dt><dd>${esc2(displayedPrice)}</dd><dt>\u7528\u6237\u540D</dt><dd>${esc2(identity)}</dd><dt>\u90AE\u7BB1</dt><dd>${esc2(state.session.user.email)}</dd></dl>${testRecoveryMap ? '<aside class="test-only-notice"><strong>\u6D4B\u8BD5\u73AF\u5883</strong><span>\u5F53\u524D\u4ED8\u6B3E\u670D\u52A1\u5C1A\u672A\u6B63\u5F0F\u63A5\u5165\uFF0C\u201C\u786E\u8BA4\u7EE7\u7EED\u201D\u4EC5\u7528\u4E8E\u5F53\u524D\u4EA7\u54C1\u6D4B\u8BD5\u95ED\u73AF\uFF1B\u4E0D\u4F1A\u521B\u5EFA\u771F\u5B9E\u652F\u4ED8\u8BB0\u5F55\u3001\u8BA2\u5355\u6216\u4ED8\u6B3E\u6210\u529F\u72B6\u6001\u3002</span></aside><a class="primary-link test-recovery-link" href="/web/v2/index.html?test_recovery_map=1#accounts">\u786E\u8BA4\u7EE7\u7EED</a>' : ""}<a class="secondary-link" href="../v3-crypto/index.html?release=pricing-products-v2#pricing">\u8FD4\u56DE\u4EA7\u54C1\u4E0E\u670D\u52A1</a></div></section>`);
+  app.innerHTML = shell(`<section class="auth-layout"><div class="auth-card payment-pending"><p class="eyebrow">PURCHASE \xB7 NEXT STEP</p><h1>\u4ED8\u6B3E\u6D41\u7A0B\u5F85\u63A5\u5165</h1><p>\u60A8\u7684\u8EAB\u4EFD\u4E0E\u5957\u9910\u9009\u62E9\u5DF2\u5B89\u5168\u5173\u8054\u3002\u771F\u5B9E\u4ED8\u6B3E\u670D\u52A1\u5C06\u5728\u4E0B\u4E00\u9636\u6BB5\u63A5\u5165\uFF1B\u5F53\u524D\u4E0D\u4F1A\u521B\u5EFA\u8BA2\u5355\u3001\u4E0D\u4F1A\u6807\u8BB0\u4ED8\u6B3E\u6210\u529F\uFF0C\u4E5F\u4E0D\u4F1A\u8FDB\u5165\u4ED8\u8D39\u521B\u5EFA\u6D41\u7A0B\u3002</p><dl><dt>\u5957\u9910</dt><dd>${esc2(purchase.plan || "\u5C1A\u672A\u9009\u62E9")}</dd><dt>\u663E\u793A\u4EF7\u683C</dt><dd>${esc2(displayedPrice)}</dd><dt>\u7528\u6237\u540D</dt><dd>${esc2(identity)}</dd><dt>\u90AE\u7BB1</dt><dd>${esc2(state.session.user.email)}</dd></dl><a class="secondary-link" href="../v3-crypto/index.html?release=pricing-products-v2#pricing">\u8FD4\u56DE\u4EA7\u54C1\u4E0E\u670D\u52A1</a></div></section>`);
+}
+function continueTestPurchase() {
+  location.replace(new URL("../v2/index.html?test_recovery_map=1#accounts", location.href).href);
 }
 async function loadAuthenticatedAccount() {
   state.profile = await ensureProfile();
@@ -20991,7 +20996,10 @@ async function loadAuthenticatedAccount() {
   if (state.authStage === AUTH_STAGES.ACCOUNT_COMPLETE) {
     await retryPendingPublishedLifecycleSync().catch(() => {
     });
-    if (purchase.active) return renderPaymentPending();
+    if (purchase.active) {
+      if (testRecoveryMap) return continueTestPurchase();
+      return renderPaymentPending();
+    }
     return renderCenter();
   }
   render();

@@ -22742,8 +22742,10 @@ var [templates, rules, passwordPolicy, attachmentPolicy] = await Promise.all([lo
 var defaultV3State = () => ({ introduced: false, payment_seen: false, module_resolutions: {}, current_view: "dashboard", updated_at: null });
 var queryParams = new URLSearchParams(location.search);
 var localTestHost = ["localhost", "127.0.0.1"].includes(location.hostname);
-var purchaseTestMode = localTestHost && queryParams.get("test") === "1";
-var testRecoveryMap = localTestHost && queryParams.get("test_recovery_map") === "1";
+var pagesTestHost = location.hostname === "sixtrees778899-stack.github.io" && location.pathname.startsWith("/SKREK-auth-test/");
+var approvedTestHost = localTestHost || pagesTestHost;
+var purchaseTestMode = approvedTestHost && queryParams.get("test") === "1";
+var testRecoveryMap = approvedTestHost && queryParams.get("test_recovery_map") === "1";
 var internalResumeTest = localTestHost && queryParams.get("internal_resume_test") === "1";
 if (testRecoveryMap) attachmentPolicy.limits.max_attachment_bytes = 30 * 1048576;
 var entryView = testRecoveryMap ? "accounts" : "guide";
