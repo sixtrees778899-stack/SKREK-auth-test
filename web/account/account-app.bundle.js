@@ -20348,6 +20348,7 @@ var AUTH_STAGES = Object.freeze({
   FORGOT_PASSWORD: "FORGOT_PASSWORD",
   PASSWORD_RECOVERY_SESSION: "PASSWORD_RECOVERY_SESSION",
   RESET_PASSWORD: "RESET_PASSWORD",
+  RECOVERY_LINK_FAILURE: "RECOVERY_LINK_FAILURE",
   PASSWORD_RESET_COMPLETE: "PASSWORD_RESET_COMPLETE"
 });
 var recoveryPriority = /* @__PURE__ */ new Set([
@@ -20399,6 +20400,43 @@ function authErrorMessage(error, { context = "general" } = {}) {
   return "\u64CD\u4F5C\u672A\u5B8C\u6210\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002";
 }
 
+// src/account/recovery-callback.js
+var RECOVERY_TYPE = "recovery";
+function readRecoveryCallback(search = "") {
+  const params = new URLSearchParams(String(search).replace(/^\?/, ""));
+  const tokenHash = params.get("token_hash") ?? "";
+  const type = params.get("type") ?? "";
+  const authAction = params.get("auth_action") ?? "";
+  return {
+    present: Boolean(tokenHash || type || authAction === RECOVERY_TYPE),
+    validShape: Boolean(tokenHash && type === RECOVERY_TYPE),
+    tokenHash,
+    type
+  };
+}
+function cleanSuccessfulRecoveryUrl({ href, history: history2 }) {
+  const url = new URL(href);
+  url.searchParams.delete("token_hash");
+  url.searchParams.delete("type");
+  url.searchParams.set("auth_action", "recovery");
+  url.hash = "reset-password";
+  history2.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+}
+async function verifyRecoveryCallback({ auth, search, href, history: history2 }) {
+  const callback = readRecoveryCallback(search);
+  if (!callback.present) return { handled: false, session: null, error: null };
+  if (!callback.validShape) return { handled: true, session: null, error: new Error("MALFORMED_RECOVERY_CALLBACK") };
+  const { data, error } = await auth.verifyOtp({ token_hash: callback.tokenHash, type: RECOVERY_TYPE });
+  if (error || !data?.session) {
+    return { handled: true, session: null, error: error ?? new Error("RECOVERY_SESSION_MISSING") };
+  }
+  cleanSuccessfulRecoveryUrl({ href, history: history2 });
+  return { handled: true, session: data.session, error: null };
+}
+function isTemporaryRecoveryFailure(error) {
+  return /fetch|network|timeout|temporar|service unavailable/i.test(String(error?.message ?? error ?? ""));
+}
+
 // src/account/supabase-account-app.js
 var config = globalThis.SKREK_PUBLIC_CONFIG ?? {};
 var configured = Boolean(config.supabaseUrl && config.supabaseAnonKey);
@@ -20410,6 +20448,7 @@ var query = new URLSearchParams(location.search);
 var authCallbackUrl = "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/account/index.html";
 var signupCallbackUrl = `${authCallbackUrl}?auth_action=signup#verify`;
 var recoveryCallbackUrl = `${authCallbackUrl}?auth_action=recovery#reset-password`;
+var recoveryCallback = readRecoveryCallback(location.search);
 var supportedPurchaseCurrencies = /* @__PURE__ */ new Set(["USD", "AUD"]);
 var purchase = {
   active: query.get("purchase") === "1",
@@ -20419,7 +20458,7 @@ var purchase = {
 };
 var testRecoveryMap = ["localhost", "127.0.0.1"].includes(location.hostname);
 var lifecyclePreview = testRecoveryMap && query.get("lifecycle_preview") === "1";
-var state = { authStage: AUTH_STAGES.LOGIN, email: "", session: null, profile: null, section: "overview", cooldownUntil: 0, cooldownTimer: null, notice: "", requestInFlight: false, recoveryEmailSent: false, recoveryIntent: hasRecoveryIntent({ hash: location.hash, search: location.search, href: location.href }) };
+var state = { authStage: AUTH_STAGES.LOGIN, email: "", session: null, profile: null, section: "overview", cooldownUntil: 0, cooldownTimer: null, notice: "", requestInFlight: false, recoveryEmailSent: false, recoveryIntent: hasRecoveryIntent({ hash: location.hash, search: location.search, href: location.href }), processingRecoveryCredential: false, recoveryFailureTemporary: false };
 var esc2 = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 document.addEventListener("click", (event) => {
   const menu = event.target.closest("#menu");
@@ -20539,7 +20578,8 @@ function renderSignup() {
     }
     state.email = email;
     if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
-      renderExistingAccount();
+      state.notice = "\u8BE5\u90AE\u7BB1\u5DF2\u7ECF\u6CE8\u518C\u4F7F\u7528\uFF0C\u8BF7\u91CD\u65B0\u767B\u5F55\u3002";
+      setStage(AUTH_STAGES.LOGIN);
       return;
     }
     startCooldown();
@@ -20547,23 +20587,6 @@ function renderSignup() {
     setStage(AUTH_STAGES.VERIFICATION_PENDING);
   });
   bind("#login", "click", () => setStage(AUTH_STAGES.LOGIN));
-}
-function renderExistingAccount() {
-  app.innerHTML = authCard("\u8BE5\u90AE\u7BB1\u5DF2\u6709 SKREK \u8D26\u6237", "\u8BF7\u76F4\u63A5\u767B\u5F55\u3002", `${message("\u8BE5\u90AE\u7BB1\u5DF2\u6709 SKREK \u8D26\u6237\uFF0C\u8BF7\u76F4\u63A5\u767B\u5F55\u3002", "success")}<div class="auth-links"><button id="login" class="primary-link">\u524D\u5F80\u767B\u5F55</button><button id="continue-incomplete" class="link-button">\u9A8C\u8BC1\u90AE\u7BB1\u5E76\u7EE7\u7EED\u672A\u5B8C\u6210\u7684\u8D26\u6237\u8BBE\u7F6E</button></div><div id="form-message"></div>`);
-  bind("#login", "click", () => setStage(AUTH_STAGES.LOGIN));
-  bind("#continue-incomplete", "click", requestHistoricalVerification);
-}
-async function requestHistoricalVerification() {
-  if (duringCooldown() || !beginRequest()) return;
-  const { error } = await supabase.auth.signInWithOtp({ email: state.email, options: { shouldCreateUser: false, emailRedirectTo: `${authCallbackUrl}?auth_action=incomplete#verify-incomplete` } });
-  endRequest();
-  if (error) {
-    showFormError(friendly(error, "otp"));
-    return;
-  }
-  startCooldown();
-  state.notice = "\u9A8C\u8BC1\u7801\u5DF2\u53D1\u9001\uFF0C\u8BF7\u68C0\u67E5\u60A8\u7684\u90AE\u7BB1\u3002";
-  setStage(AUTH_STAGES.HISTORICAL_VERIFICATION_PENDING);
 }
 function renderVerify({ historical = false } = {}) {
   const confirmation = state.notice || "\u9A8C\u8BC1\u7801\u5DF2\u53D1\u9001\uFF0C\u8BF7\u68C0\u67E5\u60A8\u7684\u90AE\u7BB1\u3002";
@@ -20647,6 +20670,7 @@ function passwordForm(title, intro, mode) {
       await supabase.auth.signOut();
       state.session = null;
       state.profile = null;
+      history.replaceState(null, "", "#password-reset-complete");
       render();
       return;
     }
@@ -20661,6 +20685,16 @@ function passwordForm(title, intro, mode) {
 }
 function renderPasswordResetComplete() {
   app.innerHTML = authCard("\u5BC6\u7801\u5DF2\u91CD\u65B0\u8BBE\u7F6E\u5B8C\u6210", "\u60A8\u7684 SKREK \u767B\u5F55\u5BC6\u7801\u5DF2\u6210\u529F\u66F4\u65B0\u3002\u60A8\u73B0\u5728\u53EF\u4EE5\u8FD4\u56DE SKREK \u7F51\u7AD9\uFF0C\u4F7F\u7528\u65B0\u5BC6\u7801\u91CD\u65B0\u767B\u5F55\u3002", '<a class="primary-link" href="./index.html#login">\u8FD4\u56DE SKREK \u767B\u5F55</a>');
+}
+function renderRecoveryLinkFailure() {
+  const text = state.recoveryFailureTemporary ? "\u6682\u65F6\u65E0\u6CD5\u9A8C\u8BC1\u5BC6\u7801\u91CD\u7F6E\u94FE\u63A5\uFF0C\u8BF7\u68C0\u67E5\u7F51\u7EDC\u540E\u91CD\u8BD5\u3002" : "\u6B64\u5BC6\u7801\u91CD\u7F6E\u94FE\u63A5\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u5BC6\u7801\u91CD\u7F6E\u90AE\u4EF6\u3002";
+  const action = state.recoveryFailureTemporary ? '<button id="retry-recovery">\u91CD\u65B0\u9A8C\u8BC1</button>' : '<button id="request-recovery">\u91CD\u65B0\u7533\u8BF7\u5BC6\u7801\u91CD\u7F6E</button>';
+  app.innerHTML = authCard("\u65E0\u6CD5\u4F7F\u7528\u6B64\u5BC6\u7801\u91CD\u7F6E\u94FE\u63A5", text, action);
+  bind("#retry-recovery", "click", () => initializeRecoveryCallback());
+  bind("#request-recovery", "click", () => {
+    state.recoveryEmailSent = false;
+    setStage(AUTH_STAGES.FORGOT_PASSWORD);
+  });
 }
 function renderForgot() {
   const sent = state.recoveryEmailSent ? message("\u5BC6\u7801\u91CD\u7F6E\u8BF7\u6C42\u5DF2\u63D0\u4EA4\u3002\u5982\u679C\u8FD9\u662F\u60A8\u7684 SKREK \u6CE8\u518C\u90AE\u7BB1\uFF0C\u8BF7\u68C0\u67E5\u6536\u4EF6\u7BB1\u5E76\u6309\u7167\u90AE\u4EF6\u63D0\u793A\u8BBE\u7F6E\u65B0\u5BC6\u7801\u3002", "success") : "";
@@ -20807,6 +20841,25 @@ async function loadAuthenticatedAccount() {
   }
   render();
 }
+async function initializeRecoveryCallback() {
+  state.processingRecoveryCredential = true;
+  const result = await verifyRecoveryCallback({ auth: supabase.auth, search: location.search, href: location.href, history });
+  state.processingRecoveryCredential = false;
+  if (!result.handled) return false;
+  if (result.error) {
+    state.session = null;
+    state.recoveryFailureTemporary = isTemporaryRecoveryFailure(result.error);
+    state.authStage = AUTH_STAGES.RECOVERY_LINK_FAILURE;
+    render();
+    return true;
+  }
+  state.session = result.session;
+  state.recoveryIntent = true;
+  state.recoveryFailureTemporary = false;
+  state.authStage = AUTH_STAGES.PASSWORD_RECOVERY_SESSION;
+  render();
+  return true;
+}
 async function loadSession() {
   if (lifecyclePreview) {
     state.session = { user: { id: "preview-customer", email: "preview@skrek.test", email_confirmed_at: "2026-09-01T09:00:00.000Z" } };
@@ -20815,6 +20868,7 @@ async function loadSession() {
     state.section = query.get("section") === "maps" ? "maps" : "overview";
     return renderCenter();
   }
+  if (recoveryCallback.present && await initializeRecoveryCallback()) return;
   const requested = stageFromLocation({ hash: location.hash, search: location.search, href: location.href });
   state.authStage = requested;
   const { data: { session }, error } = await supabase.auth.getSession();
@@ -20842,6 +20896,7 @@ function render() {
   if (state.authStage === AUTH_STAGES.SET_PASSWORD) return passwordForm("\u5B8C\u6210\u8D26\u6237\u8BBE\u7F6E", "\u60A8\u7684\u8D26\u6237\u8BBE\u7F6E\u5C1A\u672A\u5B8C\u6210\u3002\u8BF7\u8BBE\u7F6E\u60A8\u81EA\u5DF1\u7684 SKREK \u767B\u5F55\u5BC6\u7801\u3002", "historical");
   if (state.authStage === AUTH_STAGES.PASSWORD_RECOVERY_SESSION || state.authStage === AUTH_STAGES.RESET_PASSWORD) return passwordForm("\u8BBE\u7F6E\u65B0\u5BC6\u7801", "\u8BF7\u8F93\u5165\u65B0\u7684 SKREK \u767B\u5F55\u5BC6\u7801\u3002", "reset");
   if (state.authStage === AUTH_STAGES.PASSWORD_RESET_COMPLETE) return renderPasswordResetComplete();
+  if (state.authStage === AUTH_STAGES.RECOVERY_LINK_FAILURE) return renderRecoveryLinkFailure();
   if (state.authStage === AUTH_STAGES.NEW_SIGNUP) return renderSignup();
   if (state.authStage === AUTH_STAGES.VERIFICATION_PENDING) return renderVerify();
   if (state.authStage === AUTH_STAGES.HISTORICAL_VERIFICATION_PENDING) return renderVerify({ historical: true });
@@ -20851,10 +20906,11 @@ function render() {
 }
 if (configured) {
   supabase.auth.onAuthStateChange((event, session) => {
+    if (state.processingRecoveryCredential) return;
     state.session = session;
     if (event === "PASSWORD_RECOVERY" || state.recoveryIntent && session && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
       state.recoveryIntent = true;
-      state.authStage = AUTH_STAGES.RESET_PASSWORD;
+      state.authStage = AUTH_STAGES.PASSWORD_RECOVERY_SESSION;
       queueMicrotask(render);
     } else if (event === "SIGNED_OUT") {
       state.session = null;
