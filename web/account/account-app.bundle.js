@@ -20437,6 +20437,34 @@ function isTemporaryRecoveryFailure(error) {
   return /fetch|network|timeout|temporar|service unavailable/i.test(String(error?.message ?? error ?? ""));
 }
 
+// src/account/password-policy.js
+var ruleDefinitions = [
+  { id: "length", label: "\u81F3\u5C1110\u4F4D", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u898110\u4F4D\u3002", test: (value) => value.length >= 10 },
+  { id: "uppercase", label: "\u5305\u542B\u5927\u5199\u5B57\u6BCD", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u5927\u5199\u5B57\u6BCD\u3002", test: (value) => /[A-Z]/.test(value) },
+  { id: "lowercase", label: "\u5305\u542B\u5C0F\u5199\u5B57\u6BCD", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u5C0F\u5199\u5B57\u6BCD\u3002", test: (value) => /[a-z]/.test(value) },
+  { id: "number", label: "\u5305\u542B\u6570\u5B57", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u6570\u5B57\u3002", test: (value) => /\d/.test(value) },
+  { id: "special", label: "\u5305\u542B\u7279\u6B8A\u5B57\u7B26", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u7279\u6B8A\u5B57\u7B26\u3002", test: (value) => /[^A-Za-z0-9]/.test(value) }
+];
+var SKREK_PASSWORD_POLICY = Object.freeze({
+  version: "SKREK_PASSWORD_POLICY_V1",
+  expectedSupabasePolicy: "min_length=10;lowercase=true;uppercase=true;digit=true;symbol=true",
+  minimumLength: 10,
+  rules: Object.freeze(ruleDefinitions.map((rule) => Object.freeze(rule)))
+});
+var PASSWORD_POLICY_COPY = "\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u540C\u65F6\u5305\u542B\u5927\u5199\u5B57\u6BCD\u3001\u5C0F\u5199\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002";
+function passwordRuleStates(password = "") {
+  const value = String(password);
+  return SKREK_PASSWORD_POLICY.rules.map((rule) => ({ id: rule.id, label: rule.label, valid: rule.test(value) }));
+}
+function validatePasswordPair(password = "", confirmation = "") {
+  const value = String(password), confirmed = String(confirmation);
+  if (!value) return "\u8BF7\u8F93\u5165\u65B0\u5BC6\u7801\u3002";
+  if (!confirmed) return "\u8BF7\u518D\u6B21\u8F93\u5165\u5BC6\u7801\u3002";
+  if (value !== confirmed) return "\u4E24\u6B21\u8F93\u5165\u7684\u5BC6\u7801\u4E0D\u4E00\u81F4\u3002";
+  const failed = SKREK_PASSWORD_POLICY.rules.find((rule) => !rule.test(value));
+  return failed?.message ?? "";
+}
+
 // src/account/password-reset-submission.js
 var PASSWORD_UPDATE_CATEGORIES = Object.freeze({
   SAME_PASSWORD: "SAME_PASSWORD",
@@ -20448,11 +20476,7 @@ var PASSWORD_UPDATE_CATEGORIES = Object.freeze({
   UNKNOWN: "UNKNOWN"
 });
 function validateNewPassword(password, confirmation) {
-  if (!password) return "\u8BF7\u8F93\u5165\u65B0\u5BC6\u7801\u3002";
-  if (password !== confirmation) return "\u4E24\u6B21\u8F93\u5165\u7684\u5BC6\u7801\u4E0D\u4E00\u81F4\u3002";
-  if (password.length < 10) return "\u5BC6\u7801\u81F3\u5C11\u9700\u898110\u4F4D\u3002";
-  if (!/[A-Za-z]/.test(password) || !/\d/.test(password) || !/[^A-Za-z0-9]/.test(password)) return "\u5BC6\u7801\u9700\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002";
-  return "";
+  return validatePasswordPair(password, confirmation);
 }
 function classifyPasswordUpdateError(error) {
   const code = String(error?.code ?? "").toLowerCase();
@@ -20466,11 +20490,14 @@ function classifyPasswordUpdateError(error) {
   else if (status === 429 || /rate.?limit|too many requests|over_request_rate_limit/i.test(`${code} ${text}`)) category = PASSWORD_UPDATE_CATEGORIES.RATE_LIMIT;
   else if (/fetch|network|timeout|temporar|service unavailable/i.test(text)) category = PASSWORD_UPDATE_CATEGORIES.NETWORK;
   else if (["reauthentication_needed", "reauth_nonce_missing", "reauthentication_not_valid", "current_password_required", "current_password_mismatch"].includes(code)) category = PASSWORD_UPDATE_CATEGORIES.REAUTHENTICATION;
-  return { category, name: name || "AuthError", code: code || null, status };
+  const reasons = Array.isArray(error?.reasons) ? error.reasons.filter((reason) => ["length", "characters", "pwned"].includes(reason)) : [];
+  return { category, name: name || "AuthError", code: code || null, status, ...reasons.length ? { reasons } : {} };
 }
-function passwordUpdateCustomerMessage(category) {
+function passwordUpdateCustomerMessage(errorEvidence) {
+  const category = typeof errorEvidence === "string" ? errorEvidence : errorEvidence?.category;
   if (category === PASSWORD_UPDATE_CATEGORIES.SAME_PASSWORD) return "\u65B0\u5BC6\u7801\u4E0D\u80FD\u4E0E\u5F53\u524D\u5BC6\u7801\u76F8\u540C\uFF0C\u8BF7\u8BBE\u7F6E\u4E0D\u540C\u7684\u5BC6\u7801\u3002";
-  if (category === PASSWORD_UPDATE_CATEGORIES.PASSWORD_POLICY) return "\u5BC6\u7801\u9700\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002";
+  if (category === PASSWORD_UPDATE_CATEGORIES.PASSWORD_POLICY && errorEvidence?.reasons?.includes("pwned")) return "\u6B64\u5BC6\u7801\u53EF\u80FD\u5DF2\u51FA\u73B0\u5728\u5DF2\u77E5\u6CC4\u9732\u6570\u636E\u4E2D\uFF0C\u8BF7\u4F7F\u7528\u4E0D\u540C\u7684\u5BC6\u7801\u3002";
+  if (category === PASSWORD_UPDATE_CATEGORIES.PASSWORD_POLICY) return "\u5BC6\u7801\u672A\u901A\u8FC7\u5B89\u5168\u68C0\u67E5\uFF0C\u8BF7\u786E\u8BA4\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u540C\u65F6\u5305\u542B\u5927\u5199\u5B57\u6BCD\u3001\u5C0F\u5199\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002";
   if (category === PASSWORD_UPDATE_CATEGORIES.RECOVERY_SESSION_INVALID) return "\u6B64\u5BC6\u7801\u91CD\u7F6E\u94FE\u63A5\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u5BC6\u7801\u91CD\u7F6E\u90AE\u4EF6\u3002";
   if (category === PASSWORD_UPDATE_CATEGORIES.RATE_LIMIT) return "\u64CD\u4F5C\u8FC7\u4E8E\u9891\u7E41\uFF0C\u8BF7\u7A0D\u540E\u518D\u8BD5\u3002";
   if (category === PASSWORD_UPDATE_CATEGORIES.NETWORK) return "\u7F51\u7EDC\u6216\u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002";
@@ -20514,6 +20541,9 @@ function shell(content) {
 function message(text, type = "error") {
   return `<p class="form-message ${type}" role="status">${esc2(text)}</p>`;
 }
+function formMessage(text, type = "error") {
+  return `<p id="form-message" class="form-message ${type}" role="status">${esc2(text)}</p>`;
+}
 var hashForStage = (stage) => ({ [AUTH_STAGES.LOGIN]: "login", [AUTH_STAGES.NEW_SIGNUP]: "signup", [AUTH_STAGES.VERIFICATION_PENDING]: "verify", [AUTH_STAGES.HISTORICAL_VERIFICATION_PENDING]: "verify-incomplete", [AUTH_STAGES.SET_PASSWORD]: "set-password", [AUTH_STAGES.ACCOUNT_COMPLETE]: "account", [AUTH_STAGES.FORGOT_PASSWORD]: "forgot", [AUTH_STAGES.PASSWORD_RECOVERY_SESSION]: "reset-password", [AUTH_STAGES.RESET_PASSWORD]: "reset-password", [AUTH_STAGES.PASSWORD_RESET_COMPLETE]: "password-reset-complete" })[stage] ?? "";
 function setStage(stage, { replaceHash = true } = {}) {
   state.authStage = stage;
@@ -20531,17 +20561,14 @@ function bind(id, event, handler) {
 }
 function showFormError(error) {
   const node = document.querySelector("#form-message");
-  if (node) node.outerHTML = message(error?.message ?? error);
+  if (node) node.outerHTML = formMessage(error?.message ?? error);
 }
 function showFormNotice(text) {
   const node = document.querySelector("#form-message");
-  if (node) node.outerHTML = message(text, "success");
+  if (node) node.outerHTML = formMessage(text, "success");
 }
 function friendly(error, context = "general") {
   return authErrorMessage(error, { context });
-}
-function validPassword(value) {
-  return value.length >= 10 && /[A-Za-z]/.test(value) && /\d/.test(value) && /[^A-Za-z0-9]/.test(value);
 }
 function remainingCooldown() {
   return Math.max(0, Math.ceil((state.cooldownUntil - Date.now()) / 1e3));
@@ -20603,6 +20630,27 @@ function bindPasswordVisibility() {
     button.setAttribute("aria-label", `${show ? "\u9690\u85CF" : "\u663E\u793A"}${button.dataset.passwordToggle === "confirm" ? "\u786E\u8BA4\u5BC6\u7801" : "\u5BC6\u7801"}`);
   }));
 }
+function passwordPolicyChecklist() {
+  return `<div class="password-policy" data-password-policy><p>${PASSWORD_POLICY_COPY}</p><ul>${SKREK_PASSWORD_POLICY.rules.map((rule) => `<li data-policy-rule="${rule.id}">${rule.label}</li>`).join("")}</ul></div>`;
+}
+function clearFormMessage() {
+  const node = document.querySelector("#form-message");
+  if (node) node.outerHTML = '<div id="form-message"></div>';
+}
+function bindPasswordPolicyUI() {
+  const password = document.querySelector("#password"), confirmation = document.querySelector("#confirm");
+  if (!password || !confirmation) return;
+  const refresh = () => {
+    for (const rule of passwordRuleStates(password.value)) {
+      const item = document.querySelector(`[data-policy-rule="${rule.id}"]`);
+      item?.classList.toggle("policy-met", rule.valid);
+    }
+    clearFormMessage();
+  };
+  password.addEventListener("input", refresh);
+  confirmation.addEventListener("input", clearFormMessage);
+  refresh();
+}
 function renderLogin() {
   app.innerHTML = authCard("\u767B\u5F55 SKREK", "\u8FDB\u5165\u60A8\u7684\u5BA2\u6237\u4E2D\u5FC3\u3002", `${state.notice ? message(state.notice, "success") : ""}<form id="login-form"><label>\u90AE\u7BB1<input id="email" type="email" autocomplete="email" required></label>${passwordField({ label: "\u5BC6\u7801", id: "password", autocomplete: "current-password" })}<div id="form-message"></div><button type="submit">\u767B\u5F55</button></form><div class="auth-links"><button id="forgot" class="link-button">\u5FD8\u8BB0\u5BC6\u7801</button><button id="signup" class="link-button">\u521B\u5EFA\u8D26\u6237</button></div>`);
   state.notice = "";
@@ -20633,14 +20681,17 @@ function renderLogin() {
   });
 }
 function renderSignup() {
-  app.innerHTML = authCard("\u521B\u5EFA SKREK \u8D26\u6237", "\u5148\u8BBE\u7F6E\u60A8\u7684\u767B\u5F55\u5BC6\u7801\uFF0C\u518D\u9A8C\u8BC1\u90AE\u7BB1\u3002", `<form id="signup-form"><label>\u90AE\u7BB1\u5730\u5740<input id="email" type="email" autocomplete="email" required></label>${passwordField({ label: "\u5BC6\u7801", id: "password", autocomplete: "new-password" })}<small>\u81F3\u5C1110\u4F4D\uFF0C\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002</small>${passwordField({ label: "\u786E\u8BA4\u5BC6\u7801", id: "confirm", autocomplete: "new-password" })}<div id="form-message"></div><button type="submit" data-email-action data-ready-label="\u83B7\u53D6\u9A8C\u8BC1\u7801">\u83B7\u53D6\u9A8C\u8BC1\u7801</button><p class="send-status" data-send-status aria-live="polite"></p></form><div class="auth-links"><button id="login" class="link-button">\u8FD4\u56DE\u767B\u5F55</button></div>`);
+  app.innerHTML = authCard("\u521B\u5EFA SKREK \u8D26\u6237", "\u5148\u8BBE\u7F6E\u60A8\u7684\u767B\u5F55\u5BC6\u7801\uFF0C\u518D\u9A8C\u8BC1\u90AE\u7BB1\u3002", `<form id="signup-form"><label>\u90AE\u7BB1\u5730\u5740<input id="email" type="email" autocomplete="email" required></label>${passwordField({ label: "\u5BC6\u7801", id: "password", autocomplete: "new-password" })}${passwordPolicyChecklist()}${passwordField({ label: "\u786E\u8BA4\u5BC6\u7801", id: "confirm", autocomplete: "new-password" })}<div id="form-message"></div><button type="submit" data-email-action data-ready-label="\u83B7\u53D6\u9A8C\u8BC1\u7801">\u83B7\u53D6\u9A8C\u8BC1\u7801</button><p class="send-status" data-send-status aria-live="polite"></p></form><div class="auth-links"><button id="login" class="link-button">\u8FD4\u56DE\u767B\u5F55</button></div>`);
   bindPasswordVisibility();
+  bindPasswordPolicyUI();
   updateCooldownUI();
   bind("#signup-form", "submit", async (event) => {
     event.preventDefault();
-    const email = document.querySelector("#email").value.trim(), password = document.querySelector("#password").value, confirm = document.querySelector("#confirm").value;
-    if (password !== confirm) return showFormError("\u4E24\u6B21\u8F93\u5165\u7684\u5BC6\u7801\u4E0D\u4E00\u81F4\u3002");
-    if (!validPassword(password)) return showFormError("\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002");
+    const email = document.querySelector("#email").value.trim(), password = document.querySelector("#password").value, confirm = document.querySelector("#confirm").value, validationError = validatePasswordPair(password, confirm);
+    if (validationError) {
+      showFormError(validationError);
+      return;
+    }
     if (duringCooldown() || !beginRequest()) return;
     const button = event.submitter, status = document.querySelector("[data-send-status]");
     state.email = email;
@@ -20730,8 +20781,9 @@ function renderVerify({ historical = false } = {}) {
 }
 function passwordForm(title, intro, mode) {
   const hasSession2 = Boolean(state.session);
-  app.innerHTML = authCard(title, intro, hasSession2 ? `<form id="password-form">${passwordField({ label: "\u65B0\u5BC6\u7801", id: "password", autocomplete: "new-password" })}<small>\u81F3\u5C1110\u4F4D\uFF0C\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002</small>${passwordField({ label: "\u786E\u8BA4\u65B0\u5BC6\u7801", id: "confirm", autocomplete: "new-password" })}<div id="form-message"></div><button type="submit">\u4FDD\u5B58\u5E76\u7EE7\u7EED</button></form>` : `${message("\u5BC6\u7801\u6062\u590D\u94FE\u63A5\u65E0\u6548\u6216\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u3002")}<button id="request-recovery">\u91CD\u65B0\u7533\u8BF7\u5BC6\u7801\u6062\u590D</button>`);
+  app.innerHTML = authCard(title, intro, hasSession2 ? `<form id="password-form">${passwordField({ label: "\u65B0\u5BC6\u7801", id: "password", autocomplete: "new-password" })}${passwordPolicyChecklist()}${passwordField({ label: "\u786E\u8BA4\u65B0\u5BC6\u7801", id: "confirm", autocomplete: "new-password" })}<div id="form-message"></div><button type="submit">\u4FDD\u5B58\u5E76\u7EE7\u7EED</button></form>` : `${message("\u5BC6\u7801\u6062\u590D\u94FE\u63A5\u65E0\u6548\u6216\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u3002")}<button id="request-recovery">\u91CD\u65B0\u7533\u8BF7\u5BC6\u7801\u6062\u590D</button>`);
   bindPasswordVisibility();
+  bindPasswordPolicyUI();
   if (!hasSession2) {
     bind("#request-recovery", "click", () => setStage(AUTH_STAGES.FORGOT_PASSWORD));
     return;
@@ -20766,7 +20818,7 @@ function passwordForm(title, intro, mode) {
         render();
         return;
       }
-      showFormError(passwordUpdateCustomerMessage(evidence.category));
+      showFormError(passwordUpdateCustomerMessage(evidence));
       return;
     }
     state.lastResetFailureEvidence = null;
