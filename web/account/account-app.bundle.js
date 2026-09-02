@@ -20335,6 +20335,34 @@ async function retryPendingPublishedLifecycleSync({ storage = globalThis.localSt
 }
 var CUSTOMER_CENTER_LIFECYCLE = Object.freeze({ pendingKey: PENDING_KEY, formalState: "PUBLISHED", currentVersionStatus: "CURRENT" });
 
+// src/account/password-policy.js
+var ruleDefinitions = [
+  { id: "length", label: "\u81F3\u5C1110\u4F4D", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u898110\u4F4D\u3002", test: (value) => value.length >= 10 },
+  { id: "uppercase", label: "\u5305\u542B\u5927\u5199\u5B57\u6BCD", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u5927\u5199\u5B57\u6BCD\u3002", test: (value) => /[A-Z]/.test(value) },
+  { id: "lowercase", label: "\u5305\u542B\u5C0F\u5199\u5B57\u6BCD", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u5C0F\u5199\u5B57\u6BCD\u3002", test: (value) => /[a-z]/.test(value) },
+  { id: "number", label: "\u5305\u542B\u6570\u5B57", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u6570\u5B57\u3002", test: (value) => /\d/.test(value) },
+  { id: "special", label: "\u5305\u542B\u7279\u6B8A\u5B57\u7B26", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u7279\u6B8A\u5B57\u7B26\u3002", test: (value) => /[^A-Za-z0-9]/.test(value) }
+];
+var SKREK_PASSWORD_POLICY = Object.freeze({
+  version: "SKREK_PASSWORD_POLICY_V1",
+  expectedSupabasePolicy: "min_length=10;lowercase=true;uppercase=true;digit=true;symbol=true",
+  minimumLength: 10,
+  rules: Object.freeze(ruleDefinitions.map((rule) => Object.freeze(rule)))
+});
+var PASSWORD_POLICY_COPY = "\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u540C\u65F6\u5305\u542B\u5927\u5199\u5B57\u6BCD\u3001\u5C0F\u5199\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002";
+function passwordRuleStates(password = "") {
+  const value = String(password);
+  return SKREK_PASSWORD_POLICY.rules.map((rule) => ({ id: rule.id, label: rule.label, valid: rule.test(value) }));
+}
+function validatePasswordPair(password = "", confirmation = "") {
+  const value = String(password), confirmed = String(confirmation);
+  if (!value) return "\u8BF7\u8F93\u5165\u65B0\u5BC6\u7801\u3002";
+  if (!confirmed) return "\u8BF7\u518D\u6B21\u8F93\u5165\u5BC6\u7801\u3002";
+  if (value !== confirmed) return "\u4E24\u6B21\u8F93\u5165\u7684\u5BC6\u7801\u4E0D\u4E00\u81F4\u3002";
+  const failed = SKREK_PASSWORD_POLICY.rules.find((rule) => !rule.test(value));
+  return failed?.message ?? "";
+}
+
 // src/account/auth-state-machine.js
 var AUTH_STAGES = Object.freeze({
   LOGIN: "LOGIN",
@@ -20390,7 +20418,7 @@ function authErrorMessage(error, { context = "general" } = {}) {
   if (/invalid.*email|email.*invalid/i.test(text)) return "\u8BF7\u8F93\u5165\u6709\u6548\u7684\u90AE\u7BB1\u5730\u5740\u3002";
   if (/invalid login|invalid credentials/i.test(text)) return "\u90AE\u7BB1\u6216\u5BC6\u7801\u4E0D\u6B63\u786E\u3002";
   if (/username_taken|duplicate key.*username/i.test(text)) return "\u8BE5\u663E\u793A\u540D\u79F0\u5DF2\u88AB\u4F7F\u7528\uFF0C\u8BF7\u91CD\u65B0\u9009\u62E9\u3002";
-  if (/password/i.test(text) && /(characters|weak|least|short)/i.test(text)) return "\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u987B\u6EE1\u8DB3\u5B89\u5168\u5F3A\u5EA6\u8981\u6C42\u3002";
+  if (/password/i.test(text) && /(characters|weak|least|short)/i.test(text)) return PASSWORD_POLICY_COPY;
   if (context === "otp" && /(incorrect|wrong)/i.test(text)) return "\u9A8C\u8BC1\u7801\u4E0D\u6B63\u786E\uFF0C\u8BF7\u68C0\u67E5\u540E\u91CD\u8BD5\u3002";
   if (context === "otp" && /expired/i.test(text) && !/invalid/i.test(text)) return "\u9A8C\u8BC1\u7801\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u83B7\u53D6\u3002";
   if (context === "otp" && /invalid.*expired|expired.*invalid/i.test(text)) return "\u9A8C\u8BC1\u7801\u65E0\u6548\u6216\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u83B7\u53D6\u5E76\u4F7F\u7528\u6700\u65B0\u9A8C\u8BC1\u7801\u3002";
@@ -20435,34 +20463,6 @@ async function verifyRecoveryCallback({ auth, search, href, history: history2 })
 }
 function isTemporaryRecoveryFailure(error) {
   return /fetch|network|timeout|temporar|service unavailable/i.test(String(error?.message ?? error ?? ""));
-}
-
-// src/account/password-policy.js
-var ruleDefinitions = [
-  { id: "length", label: "\u81F3\u5C1110\u4F4D", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u898110\u4F4D\u3002", test: (value) => value.length >= 10 },
-  { id: "uppercase", label: "\u5305\u542B\u5927\u5199\u5B57\u6BCD", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u5927\u5199\u5B57\u6BCD\u3002", test: (value) => /[A-Z]/.test(value) },
-  { id: "lowercase", label: "\u5305\u542B\u5C0F\u5199\u5B57\u6BCD", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u5C0F\u5199\u5B57\u6BCD\u3002", test: (value) => /[a-z]/.test(value) },
-  { id: "number", label: "\u5305\u542B\u6570\u5B57", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u6570\u5B57\u3002", test: (value) => /\d/.test(value) },
-  { id: "special", label: "\u5305\u542B\u7279\u6B8A\u5B57\u7B26", message: "\u5BC6\u7801\u81F3\u5C11\u9700\u8981\u5305\u542B1\u4E2A\u7279\u6B8A\u5B57\u7B26\u3002", test: (value) => /[^A-Za-z0-9]/.test(value) }
-];
-var SKREK_PASSWORD_POLICY = Object.freeze({
-  version: "SKREK_PASSWORD_POLICY_V1",
-  expectedSupabasePolicy: "min_length=10;lowercase=true;uppercase=true;digit=true;symbol=true",
-  minimumLength: 10,
-  rules: Object.freeze(ruleDefinitions.map((rule) => Object.freeze(rule)))
-});
-var PASSWORD_POLICY_COPY = "\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u540C\u65F6\u5305\u542B\u5927\u5199\u5B57\u6BCD\u3001\u5C0F\u5199\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002";
-function passwordRuleStates(password = "") {
-  const value = String(password);
-  return SKREK_PASSWORD_POLICY.rules.map((rule) => ({ id: rule.id, label: rule.label, valid: rule.test(value) }));
-}
-function validatePasswordPair(password = "", confirmation = "") {
-  const value = String(password), confirmed = String(confirmation);
-  if (!value) return "\u8BF7\u8F93\u5165\u65B0\u5BC6\u7801\u3002";
-  if (!confirmed) return "\u8BF7\u518D\u6B21\u8F93\u5165\u5BC6\u7801\u3002";
-  if (value !== confirmed) return "\u4E24\u6B21\u8F93\u5165\u7684\u5BC6\u7801\u4E0D\u4E00\u81F4\u3002";
-  const failed = SKREK_PASSWORD_POLICY.rules.find((rule) => !rule.test(value));
-  return failed?.message ?? "";
 }
 
 // src/account/password-reset-submission.js
