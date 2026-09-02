@@ -20254,9 +20254,11 @@ if (shouldShowDeprecationWarning()) console.warn("\u26A0\uFE0F  Node.js 20 and b
 
 // src/ui/recovery-route.js
 var RECOVERY_PATH = "/web/recover.html";
-function recoveryUrl(source) {
+function recoveryUrl(source, { pathname = globalThis.location?.pathname ?? RECOVERY_PATH } = {}) {
   const value = String(source ?? "").trim();
-  return value ? `${RECOVERY_PATH}?source=${encodeURIComponent(value)}` : RECOVERY_PATH;
+  const webIndex = pathname.indexOf("/web/");
+  const recoveryPath = webIndex >= 0 ? `${pathname.slice(0, webIndex)}/web/recover.html` : RECOVERY_PATH;
+  return value ? `${recoveryPath}?source=${encodeURIComponent(value)}` : recoveryPath;
 }
 
 // src/ui/skrek-global-header.js
@@ -20534,7 +20536,7 @@ document.addEventListener("click", (event) => {
   menu.setAttribute("aria-expanded", String(open));
 });
 function shell(content) {
-  const header = skrekGlobalHeader({ activeRoute: "", mode: "map", productBase: "../v3-crypto/index.html?release=global-nav-v1", accountBase: "./index.html", logoBase: "../assets/skrek-logo-formal.png?v=20260814-hd", recoveryBase: "../recover.html?source=recovery-center" });
+  const header = skrekGlobalHeader({ activeRoute: "", mode: "map", productBase: "../v3-crypto/index.html?release=global-nav-v1", accountBase: "./index.html", logoBase: "../assets/skrek-logo-formal.png?v=20260814-hd", recoveryBase: recoveryUrl("recovery-center") });
   return `<header id="site-header" class="global-header-host">${header}</header><main>${content}</main>`;
 }
 function message(text, type = "error") {

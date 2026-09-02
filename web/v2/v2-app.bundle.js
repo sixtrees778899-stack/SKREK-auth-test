@@ -23,9 +23,11 @@ function selectedConditions(store2, accountId) {
 
 // src/ui/recovery-route.js
 var RECOVERY_PATH = "/web/recover.html";
-function recoveryUrl(source2) {
+function recoveryUrl(source2, { pathname = globalThis.location?.pathname ?? RECOVERY_PATH } = {}) {
   const value = String(source2 ?? "").trim();
-  return value ? `${RECOVERY_PATH}?source=${encodeURIComponent(value)}` : RECOVERY_PATH;
+  const webIndex = pathname.indexOf("/web/");
+  const recoveryPath = webIndex >= 0 ? `${pathname.slice(0, webIndex)}/web/recover.html` : RECOVERY_PATH;
+  return value ? `${recoveryPath}?source=${encodeURIComponent(value)}` : recoveryPath;
 }
 
 // src/ui/skrek-global-header.js
