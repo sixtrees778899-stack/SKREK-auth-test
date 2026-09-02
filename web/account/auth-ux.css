@@ -94,9 +94,10 @@ button[aria-busy="true"]::after {
   stroke-width: 1.8;
 }
 
-.password-toggle[aria-pressed="true"] svg {
-  opacity: .65;
-}
+.password-toggle .eye-open { display: none; }
+.password-toggle .eye-closed { display: block; }
+.password-toggle[aria-pressed="true"] .eye-open { display: block; }
+.password-toggle[aria-pressed="true"] .eye-closed { display: none; }
 
 .password-toggle[aria-busy="true"]::after {
   display: none;

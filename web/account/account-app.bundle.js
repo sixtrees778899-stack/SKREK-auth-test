@@ -20437,6 +20437,47 @@ function isTemporaryRecoveryFailure(error) {
   return /fetch|network|timeout|temporar|service unavailable/i.test(String(error?.message ?? error ?? ""));
 }
 
+// src/account/password-reset-submission.js
+var PASSWORD_UPDATE_CATEGORIES = Object.freeze({
+  SAME_PASSWORD: "SAME_PASSWORD",
+  PASSWORD_POLICY: "PASSWORD_POLICY",
+  RECOVERY_SESSION_INVALID: "RECOVERY_SESSION_INVALID",
+  RATE_LIMIT: "RATE_LIMIT",
+  NETWORK: "NETWORK",
+  REAUTHENTICATION: "REAUTHENTICATION",
+  UNKNOWN: "UNKNOWN"
+});
+function validateNewPassword(password, confirmation) {
+  if (!password) return "\u8BF7\u8F93\u5165\u65B0\u5BC6\u7801\u3002";
+  if (password !== confirmation) return "\u4E24\u6B21\u8F93\u5165\u7684\u5BC6\u7801\u4E0D\u4E00\u81F4\u3002";
+  if (password.length < 10) return "\u5BC6\u7801\u81F3\u5C11\u9700\u898110\u4F4D\u3002";
+  if (!/[A-Za-z]/.test(password) || !/\d/.test(password) || !/[^A-Za-z0-9]/.test(password)) return "\u5BC6\u7801\u9700\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002";
+  return "";
+}
+function classifyPasswordUpdateError(error) {
+  const code = String(error?.code ?? "").toLowerCase();
+  const name = String(error?.name ?? "");
+  const status = Number(error?.status ?? 0) || null;
+  const text = String(error?.message ?? error ?? "");
+  let category = PASSWORD_UPDATE_CATEGORIES.UNKNOWN;
+  if (code === "same_password" || /same password|different from the old password/i.test(text)) category = PASSWORD_UPDATE_CATEGORIES.SAME_PASSWORD;
+  else if (code === "weak_password" || /password.*(?:weak|strength|characters|least|short|pwned|compromised)/i.test(text)) category = PASSWORD_UPDATE_CATEGORIES.PASSWORD_POLICY;
+  else if (["session_not_found", "refresh_token_not_found", "bad_jwt"].includes(code) || /session.*(?:missing|invalid|expired)|jwt.*(?:invalid|expired)/i.test(text) || name === "AuthSessionMissingError") category = PASSWORD_UPDATE_CATEGORIES.RECOVERY_SESSION_INVALID;
+  else if (status === 429 || /rate.?limit|too many requests|over_request_rate_limit/i.test(`${code} ${text}`)) category = PASSWORD_UPDATE_CATEGORIES.RATE_LIMIT;
+  else if (/fetch|network|timeout|temporar|service unavailable/i.test(text)) category = PASSWORD_UPDATE_CATEGORIES.NETWORK;
+  else if (["reauthentication_needed", "reauth_nonce_missing", "reauthentication_not_valid", "current_password_required", "current_password_mismatch"].includes(code)) category = PASSWORD_UPDATE_CATEGORIES.REAUTHENTICATION;
+  return { category, name: name || "AuthError", code: code || null, status };
+}
+function passwordUpdateCustomerMessage(category) {
+  if (category === PASSWORD_UPDATE_CATEGORIES.SAME_PASSWORD) return "\u65B0\u5BC6\u7801\u4E0D\u80FD\u4E0E\u5F53\u524D\u5BC6\u7801\u76F8\u540C\uFF0C\u8BF7\u8BBE\u7F6E\u4E0D\u540C\u7684\u5BC6\u7801\u3002";
+  if (category === PASSWORD_UPDATE_CATEGORIES.PASSWORD_POLICY) return "\u5BC6\u7801\u9700\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002";
+  if (category === PASSWORD_UPDATE_CATEGORIES.RECOVERY_SESSION_INVALID) return "\u6B64\u5BC6\u7801\u91CD\u7F6E\u94FE\u63A5\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u5BC6\u7801\u91CD\u7F6E\u90AE\u4EF6\u3002";
+  if (category === PASSWORD_UPDATE_CATEGORIES.RATE_LIMIT) return "\u64CD\u4F5C\u8FC7\u4E8E\u9891\u7E41\uFF0C\u8BF7\u7A0D\u540E\u518D\u8BD5\u3002";
+  if (category === PASSWORD_UPDATE_CATEGORIES.NETWORK) return "\u7F51\u7EDC\u6216\u670D\u52A1\u6682\u65F6\u4E0D\u53EF\u7528\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002";
+  if (category === PASSWORD_UPDATE_CATEGORIES.REAUTHENTICATION) return "\u5F53\u524D\u5BC6\u7801\u6062\u590D\u4F1A\u8BDD\u65E0\u6CD5\u5B8C\u6210\u66F4\u65B0\uFF0C\u8BF7\u91CD\u65B0\u7533\u8BF7\u5BC6\u7801\u91CD\u7F6E\u90AE\u4EF6\u3002";
+  return "\u64CD\u4F5C\u672A\u5B8C\u6210\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5\u3002";
+}
+
 // src/account/supabase-account-app.js
 var config = globalThis.SKREK_PUBLIC_CONFIG ?? {};
 var configured = Boolean(config.supabaseUrl && config.supabaseAnonKey);
@@ -20458,7 +20499,7 @@ var purchase = {
 };
 var testRecoveryMap = ["localhost", "127.0.0.1"].includes(location.hostname);
 var lifecyclePreview = testRecoveryMap && query.get("lifecycle_preview") === "1";
-var state = { authStage: AUTH_STAGES.LOGIN, email: "", session: null, profile: null, section: "overview", cooldownUntil: 0, cooldownTimer: null, notice: "", requestInFlight: false, recoveryEmailSent: false, recoveryIntent: hasRecoveryIntent({ hash: location.hash, search: location.search, href: location.href }), processingRecoveryCredential: false, recoveryFailureTemporary: false };
+var state = { authStage: AUTH_STAGES.LOGIN, email: "", session: null, profile: null, section: "overview", cooldownUntil: 0, cooldownTimer: null, notice: "", requestInFlight: false, recoveryEmailSent: false, recoveryIntent: hasRecoveryIntent({ hash: location.hash, search: location.search, href: location.href }), processingRecoveryCredential: false, recoveryFailureTemporary: false, resetSubmitAttempts: 0, lastResetFailureEvidence: null };
 var esc2 = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 document.addEventListener("click", (event) => {
   const menu = event.target.closest("#menu");
@@ -20551,7 +20592,7 @@ function setLoading(button, loading, label = "\u5904\u7406\u4E2D\u2026") {
   }
 }
 function passwordField({ label, id, autocomplete }) {
-  return `<label>${label}<span class="password-control"><input id="${id}" type="password" autocomplete="${autocomplete}" required><button type="button" class="password-toggle" data-password-toggle="${id}" aria-label="\u663E\u793A${label}" aria-pressed="false"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></span></label>`;
+  return `<label>${label}<span class="password-control"><input id="${id}" type="password" autocomplete="${autocomplete}" required><button type="button" class="password-toggle" data-password-toggle="${id}" aria-label="\u663E\u793A${label}" aria-pressed="false"><svg class="eye-closed" data-eye="closed" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 6.2A10.7 10.7 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-3 3.6M6.2 6.2C3.8 8 2.5 12 2.5 12s3.5 6 9.5 6c1.4 0 2.7-.3 3.8-.8M9.8 9.8A3 3 0 0 0 14.2 14.2"/></svg><svg class="eye-open" data-eye="open" aria-hidden="true" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.8"/></svg></button></span></label>`;
 }
 function bindPasswordVisibility() {
   document.querySelectorAll("[data-password-toggle]").forEach((button) => button.addEventListener("click", () => {
@@ -20697,20 +20738,39 @@ function passwordForm(title, intro, mode) {
   }
   bind("#password-form", "submit", async (event) => {
     event.preventDefault();
-    const button = event.submitter, password = document.querySelector("#password").value, confirm = document.querySelector("#confirm").value;
-    if (password !== confirm) return showFormError("\u4E24\u6B21\u8F93\u5165\u7684\u5BC6\u7801\u4E0D\u4E00\u81F4\u3002");
-    if (!validPassword(password)) return showFormError("\u5BC6\u7801\u81F3\u5C1110\u4F4D\uFF0C\u5E76\u5305\u542B\u5B57\u6BCD\u3001\u6570\u5B57\u548C\u7279\u6B8A\u5B57\u7B26\u3002");
-    if (!beginRequest()) return;
-    setLoading(button, true, "\u4FDD\u5B58\u4E2D\u2026");
-    const metadata = mode === "historical" ? { ...state.session.user.user_metadata ?? {}, skrek_account_state: "COMPLETE" } : void 0;
-    const { data, error } = await supabase.auth.updateUser({ password, ...metadata ? { data: metadata } : {} });
-    endRequest();
-    if (error) {
-      setLoading(button, false);
-      showFormError(friendly(error, mode === "reset" ? "recovery-session" : "password"));
+    const button = event.submitter, password = document.querySelector("#password").value, confirm = document.querySelector("#confirm").value, validationError = validateNewPassword(password, confirm);
+    if (validationError) {
+      showFormError(validationError);
       return;
     }
-    state.session = data.user ? { ...state.session, user: data.user } : state.session;
+    if (!beginRequest()) return;
+    state.resetSubmitAttempts += 1;
+    setLoading(button, true, "\u4FDD\u5B58\u4E2D\u2026");
+    const metadata = mode === "historical" ? { ...state.session.user.user_metadata ?? {}, skrek_account_state: "COMPLETE" } : void 0;
+    let data = null, error = null;
+    try {
+      ({ data, error } = await supabase.auth.updateUser({ password, ...metadata ? { data: metadata } : {} }));
+    } catch (caught) {
+      error = caught;
+    } finally {
+      endRequest();
+      setLoading(button, false);
+    }
+    if (error) {
+      const evidence = classifyPasswordUpdateError(error);
+      state.lastResetFailureEvidence = { ...evidence, hasSession: Boolean(state.session), recoverySession: mode === "reset" && state.recoveryIntent, requestInFlight: state.requestInFlight, attempt: state.resetSubmitAttempts };
+      if (evidence.category === PASSWORD_UPDATE_CATEGORIES.RECOVERY_SESSION_INVALID || evidence.category === PASSWORD_UPDATE_CATEGORIES.REAUTHENTICATION) {
+        state.session = null;
+        state.authStage = AUTH_STAGES.RECOVERY_LINK_FAILURE;
+        state.recoveryFailureTemporary = false;
+        render();
+        return;
+      }
+      showFormError(passwordUpdateCustomerMessage(evidence.category));
+      return;
+    }
+    state.lastResetFailureEvidence = null;
+    state.session = data?.user ? { ...state.session, user: data.user } : state.session;
     if (mode === "reset") {
       state.authStage = AUTH_STAGES.PASSWORD_RESET_COMPLETE;
       state.recoveryIntent = false;
@@ -20744,7 +20804,7 @@ function renderRecoveryLinkFailure() {
   });
 }
 function renderForgot() {
-  const sent = state.recoveryEmailSent ? message("\u5BC6\u7801\u91CD\u7F6E\u8BF7\u6C42\u5DF2\u63D0\u4EA4\u3002\u8BF7\u68C0\u67E5\u60A8\u7684\u90AE\u7BB1\uFF0C\u5E76\u6309\u7167\u90AE\u4EF6\u63D0\u793A\u8BBE\u7F6E\u65B0\u5BC6\u7801\u3002\u5982\u679C\u51E0\u5206\u949F\u540E\u4ECD\u672A\u6536\u5230\u90AE\u4EF6\uFF0C\u8BF7\u786E\u8BA4\u90AE\u7BB1\u5730\u5740\u662F\u5426\u586B\u5199\u6B63\u786E\u3002", "success") : "";
+  const sent = state.recoveryEmailSent ? message("\u5BC6\u7801\u91CD\u7F6E\u8BF7\u6C42\u5DF2\u63D0\u4EA4\u3002\u8BF7\u68C0\u67E5\u60A8\u7684\u90AE\u7BB1\uFF0C\u5E76\u6309\u7167\u90AE\u4EF6\u63D0\u793A\u8BBE\u7F6E\u65B0\u5BC6\u7801\u3002", "success") : "";
   app.innerHTML = authCard("\u5FD8\u8BB0\u5BC6\u7801", "\u8F93\u5165\u6CE8\u518C\u90AE\u7BB1\uFF0C\u6211\u4EEC\u4F1A\u53D1\u9001\u5B89\u5168\u7684\u5BC6\u7801\u91CD\u7F6E\u90AE\u4EF6\u3002", `<form id="forgot-form"><label>\u6CE8\u518C\u90AE\u7BB1<input id="email" type="email" autocomplete="email" value="${esc2(state.email)}" required></label>${sent}<div id="form-message"></div><button type="submit" data-email-action data-ready-label="${state.recoveryEmailSent ? "\u91CD\u65B0\u53D1\u9001" : "\u53D1\u9001\u91CD\u7F6E\u90AE\u4EF6"}">${state.recoveryEmailSent ? "\u91CD\u65B0\u53D1\u9001" : "\u53D1\u9001\u91CD\u7F6E\u90AE\u4EF6"}</button><p class="send-status" data-send-status aria-live="polite">${state.recoveryEmailSent ? "\u5BC6\u7801\u91CD\u7F6E\u90AE\u4EF6\u5DF2\u53D1\u9001\uFF0C\u8BF7\u68C0\u67E5\u60A8\u7684\u90AE\u7BB1\u3002" : ""}</p></form><div class="auth-links"><button id="login" class="link-button">\u8FD4\u56DE\u767B\u5F55</button></div>`);
   updateCooldownUI();
   bind("#forgot-form", "submit", async (event) => {
