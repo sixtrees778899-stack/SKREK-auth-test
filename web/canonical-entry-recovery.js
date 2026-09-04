@@ -1,13 +1,13 @@
 (()=>{
   const app=document.querySelector('#app'),gate=globalThis.SKREK_RUNTIME_GATE;
   if(!gate){app.innerHTML='<section class="card" role="alert"><h1>当前入口不受支持</h1><p>请使用正式 HTTPS 测试入口。</p><a href="https://sixtrees778899-stack.github.io/SKREK-auth-test/web/recover.html">打开正式 HTTPS 测试入口</a></section>';return;}
-  const query=new URLSearchParams(location.search),diagnosticRelease='f109407',diagnosticMode=query.get('mode')==='version-update'&&query.get('version_number')==='4';
+  const query=new URLSearchParams(location.search),diagnosticRelease='batch1-20260904-1',diagnosticMode=query.get('mode')==='version-update'&&query.get('version_number')==='4';
   if(diagnosticMode){
     const releaseIdentity=document.querySelector('meta[name="skrek-release"]')?.content??'';
-    const validEntry=location.protocol==='https:'&&location.origin===gate.canonicalOrigin&&location.pathname===`${gate.canonicalBase}/web/recover.html`&&query.get('deploy')===diagnosticRelease&&releaseIdentity===diagnosticRelease;
+    const validEntry=location.protocol==='https:'&&location.origin===gate.canonicalOrigin&&location.pathname===`${gate.canonicalBase}/web/recover.html`&&(query.get('release')??query.get('deploy'))===diagnosticRelease&&releaseIdentity===diagnosticRelease;
     const canonicalDiagnosticUrl=new URL(`${gate.canonicalOrigin}${gate.canonicalBase}/web/recover.html`);
-    for(const [key,value] of query)if(key!=='deploy')canonicalDiagnosticUrl.searchParams.append(key,value);
-    canonicalDiagnosticUrl.searchParams.set('deploy',diagnosticRelease);
+    for(const [key,value] of query)if(key!=='deploy'&&key!=='release')canonicalDiagnosticUrl.searchParams.append(key,value);
+    canonicalDiagnosticUrl.searchParams.set('release',diagnosticRelease);
     if(!validEntry){
       app.innerHTML=`<section class="card" role="alert"><p class="eyebrow">DIAGNOSTIC ENTRY</p><h1>错误/旧诊断入口</h1><p>此页面不能用于 V4 诊断解锁。请只使用当前唯一的 HTTPS 诊断入口。</p><a class="button" href="${canonicalDiagnosticUrl.href}">打开唯一 V4 诊断入口</a><p><small>DIAGNOSTIC V4 · ${diagnosticRelease}</small></p></section>`;
       return;
@@ -21,6 +21,6 @@
     document.documentElement.dataset.diagnosticRelease=diagnosticRelease;
   }
   const pagesRuntime=location.origin===gate.canonicalOrigin;
-  const appScript=pagesRuntime?'./recover.bundle.js?v=v4-module3-diagnostic-3':'./recover.js?v=v4-module3-diagnostic-3';
-  gate.boot({rootId:'app',canonicalPath:'/web/recover.html',scripts:[{src:appScript,type:'module',id:'recovery-app-script'}]});
+  const appScript=pagesRuntime?'./recover.bundle.js?v=batch1-20260904-1':'./recover.js?v=batch1-20260904-1';
+  gate.boot({rootId:'app',canonicalPath:'/web/recover.html?release=batch1-20260904-1',bundleMarker:'recoveryBundleRelease',scripts:[{src:appScript,type:'module',id:'recovery-app-script'}]});
 })();
