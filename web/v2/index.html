@@ -19,6 +19,18 @@
     <div id="overlay-root"></div><div id="toast" role="status" aria-live="polite"></div>
     <script src="../account/public-config.js"></script>
     <script src="../account/account-nav-bridge.bundle.js"></script>
-    <script type="module" src="./v2-app.bundle.js?v=version-update-generation-gate-fix-final"></script>
+    <script id="recovery-map-app" type="module" src="./v2-app.bundle.js?v=live-navigation-initialization-v1"></script>
+    <script>
+      (()=>{
+        const renderFailure=()=>{
+          const app=document.querySelector('#app');
+          if(!app||!app.textContent.includes('正在打开 Recovery Map'))return;
+          app.innerHTML='<section class="card initialization-failure" role="alert"><h1>Recovery Map 未能正常打开</h1><p>请重新加载，或返回客户中心后再次进入。</p><div class="actions"><button id="reload-recovery-map">重新加载</button><a class="button secondary" href="../account/index.html?section=maps#center">返回客户中心</a></div></section>';
+          document.querySelector('#reload-recovery-map')?.addEventListener('click',()=>location.reload());
+        };
+        document.querySelector('#recovery-map-app')?.addEventListener('error',renderFailure);
+        setTimeout(renderFailure,12000);
+      })();
+    </script>
   </body>
 </html>
