@@ -5,6 +5,16 @@
   list-style: none;
 }
 
+/* Batch 2 A1: Update-only secure shell. Create Mode remains on the product shell. */
+body.secure-workspace .global-header-host{min-height:0}
+body.secure-workspace .global-header-host>.secure-workspace-header{display:flex;min-height:72px;align-items:center;justify-content:space-between;gap:20px;padding:14px clamp(20px,4vw,64px);border-bottom:1px solid var(--border-subtle);background:#fff}
+body.secure-workspace .secure-workspace-header .brand img{display:block;width:auto;height:36px;max-width:min(260px,55vw);object-fit:contain}
+body.secure-workspace .secure-workspace-header .quiet-link{color:var(--brand-deep-green);font-size:.9rem;font-weight:750;text-decoration:none}
+body.secure-workspace .secure-workspace-header .quiet-link:hover{text-decoration:underline;text-underline-offset:4px}
+body.secure-workspace>.map-context,body.secure-workspace>#flow-nav,body.secure-workspace>footer{display:none}
+body.secure-workspace main#app{padding-top:34px}
+@media(max-width:700px){body.secure-workspace .global-header-host>.secure-workspace-header{min-height:64px;padding:12px 18px}body.secure-workspace .secure-workspace-header .brand img{height:30px}}
+
 .process-status li {
   padding: 12px 14px;
   border-radius: 10px;
