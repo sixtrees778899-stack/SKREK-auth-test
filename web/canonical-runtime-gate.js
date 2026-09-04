@@ -1,7 +1,7 @@
 (()=>{
   const canonicalOrigin='https://sixtrees778899-stack.github.io';
   const canonicalBase='/SKREK-auth-test';
-  const release='batch2-20260904-1';
+  const release='batch3-20260904-1';
   const approvedPaths=new Set([`${canonicalBase}/web/account/index.html`,`${canonicalBase}/web/v2/index.html`,`${canonicalBase}/web/recover.html`]);
   const requestedRelease=()=>new URLSearchParams(location.search).get('release')??new URLSearchParams(location.search).get('deploy');
   const pageRelease=()=>document.querySelector('meta[name="skrek-release"]')?.content??'';

@@ -98,6 +98,7 @@ button,.button{min-height:var(--button-height);border-radius:12px;padding:0 20px
 .attachment-action{height:var(--button-height);min-width:126px;background:#bfe8d2!important;color:#073b2c!important;border-color:#8fc9ad!important;font-weight:760}.autosave-copy{margin-right:auto!important}
 .dashboard-hero{padding:clamp(36px,5vw,64px);border-radius:var(--radius-lg);background:linear-gradient(135deg,var(--brand-dark-green),#0d3027);box-shadow:var(--shadow-low)}
 .dashboard-hero h1{max-width:620px}.dashboard-hero #next-task{background:#fff;color:var(--brand-dark-green);border-color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.14);font-weight:820}
+.version-update-loaded h1{max-width:none;font-size:clamp(1.9rem,3vw,2.7rem);line-height:1.18;word-break:keep-all;overflow-wrap:normal;text-wrap:balance}.version-update-loaded>div{max-width:900px}@media(max-width:700px){.version-update-loaded h1{max-width:18ch;font-size:clamp(1.75rem,8vw,2.15rem);line-height:1.24;word-break:normal;overflow-wrap:break-word}}
 .dashboard-hero #next-task:hover{background:#f5f7f4;box-shadow:0 14px 34px rgba(0,0,0,.18)}
 .overview-secondary-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
 .before-begin{max-width:940px;margin:18px auto 70px}.before-begin h1{max-width:820px}.before-lead{max-width:760px;color:var(--text-secondary);font-size:17px}
