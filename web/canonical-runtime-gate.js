@@ -1,7 +1,7 @@
 (()=>{
   const canonicalOrigin='https://sixtrees778899-stack.github.io';
   const canonicalBase='/SKREK-auth-test';
-  const release='canonical-https-entry-20260904-1';
+  const release='canonical-https-entry-20260904-2';
   const localHosts=new Set(['localhost','127.0.0.1']);
   const approvedPath=path=>path.startsWith(`${canonicalBase}/web/`);
   const localPath=path=>path.startsWith('/web/');
