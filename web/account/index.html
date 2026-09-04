@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="skrek-release" content="canonical-https-entry-20260904-1">
   <title>登录 | SKREK</title>
   <link rel="stylesheet" href="./account.css?v=customer-center-real-v1">
   <link rel="stylesheet" href="./auth-ux.css?v=auth-ux-polish-v1">
@@ -10,11 +11,7 @@
 </head>
 <body>
   <div id="account-app" data-account-initializing><main><section class="loading" role="status">正在打开 SKREK 客户中心…</section></main></div>
-  <script src="./public-config.js?v=payment-test-gate-v2"></script>
-  <script src="./account-nav-bridge.bundle.js?v=payment-test-gate-v2"></script>
-  <script>
-    (()=>{const app=document.querySelector('#account-app');let finished=false;const fail=()=>{if(finished||!app?.hasAttribute('data-account-initializing'))return;finished=true;app.innerHTML='<main><section class="auth-layout"><div class="auth-card"><h1>客户中心未能正常打开</h1><p>请重新加载，或返回安全入口后再次进入。</p><div class="auth-links"><button id="account-shell-reload">重新加载</button><a class="secondary-link" href="../v3-crypto/index.html?release=global-nav-v1#home">返回安全入口</a></div></div></section></main>';document.querySelector('#account-shell-reload')?.addEventListener('click',()=>location.reload());};new MutationObserver(()=>{if(app&&!app.textContent.includes('正在打开 SKREK 客户中心')){app.removeAttribute('data-account-initializing');finished=true;}}).observe(app,{childList:true,subtree:true});addEventListener('error',fail);addEventListener('unhandledrejection',fail);setTimeout(fail,12000);})();
-  </script>
-  <script type="module" src="./account-app.bundle.js?v=customer-center-init-v2"></script>
+  <script src="../canonical-runtime-gate.js?v=canonical-https-entry-20260904-1"></script>
+  <script src="./canonical-entry.js?v=canonical-https-entry-20260904-1"></script>
 </body>
 </html>
