@@ -1,9 +1,27 @@
+// src/ui/brand-contract.js
+var LEGAVIK_BRAND = Object.freeze({
+  name: "LEGAVIK",
+  wordmark: "LEGAVIK",
+  tagline: "Digital Asset Recovery & Legacy",
+  category: "Digital Asset Recovery Infrastructure",
+  logo: Object.freeze({
+    masterV1: "../assets/legavik-brand-master-v1.png",
+    alt: "LEGAVIK \u2014 Digital Asset Recovery & Legacy"
+  }),
+  browserTitle: "LEGAVIK \xB7 Digital Asset Recovery & Legacy",
+  shortDescription: "\u4E3A\u91CD\u8981\u6570\u5B57\u8D44\u4EA7\u7559\u4E0B\u6E05\u6670\u3001\u53EF\u6062\u590D\u7684\u8DEF\u5F84\u3002"
+});
+var customerBrand = LEGAVIK_BRAND;
+
 // web/v3-crypto/brand-config.js
 var brand = Object.freeze({
-  brand_name: "SKREK",
-  wordmark: "SKREK",
-  tagline: "Digital Asset Recovery & Continuity",
-  short_description: "\u4E3A\u91CD\u8981\u6570\u5B57\u8D44\u4EA7\u7559\u4E0B\u6E05\u6670\u3001\u53EF\u6062\u590D\u7684\u8DEF\u5F84\u3002",
+  brand_name: customerBrand.name,
+  wordmark: customerBrand.wordmark,
+  tagline: customerBrand.tagline,
+  category: customerBrand.category,
+  logo: customerBrand.logo,
+  browser_title: customerBrand.browserTitle,
+  short_description: customerBrand.shortDescription,
   legal_name: "[Legal name pending]",
   support_email: "support@example.invalid"
 });
@@ -878,7 +896,7 @@ function validateRecoveryPassword(password, confirmation, acknowledged, { policy
 // src/ui/canonical-customer-links.js
 var APPROVED_TEST_ORIGIN = "https://sixtrees778899-stack.github.io";
 var APPROVED_TEST_BASE = "/SKREK-auth-test";
-var CURRENT_TEST_RELEASE = "home-canonical-link-gate-20260905-1";
+var CURRENT_TEST_RELEASE = "legavik-phase3ab-20260905-1";
 var ROUTES = Object.freeze({
   home: "/web/v3-crypto/index.html",
   account: "/web/account/index.html",
@@ -909,10 +927,10 @@ var SKREK_GLOBAL_NAV = [
   ["about", "\u8054\u7CFB\u6211\u4EEC"]
 ];
 var esc = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
-function skrekGlobalHeader({ brand: brand2, activeRoute = "home", mode = "product", productBase = canonicalHomeUrl(""), accountBase = canonicalAccountUrl("", {}).replace(/#$/, ""), logoBase = "/web/assets/skrek-logo-formal.png?v=20260814-hd", recoveryBase = canonicalRecoveryUrl("recovery-center") } = {}) {
-  const wordmark = esc(brand2?.wordmark ?? "SKREK"), tagline = esc(brand2?.tagline ?? "Digital Asset Recovery & Continuity");
+function skrekGlobalHeader({ brand: brand2 = customerBrand, activeRoute = "home", mode = "product", productBase = canonicalHomeUrl(""), accountBase = canonicalAccountUrl("", {}).replace(/#$/, ""), logoBase = customerBrand.logo.masterV1, recoveryBase = canonicalRecoveryUrl("recovery-center") } = {}) {
+  const wordmark = esc(brand2?.wordmark ?? customerBrand.wordmark), logoAlt = esc(brand2?.logo?.alt ?? customerBrand.logo.alt);
   const href = (id) => mode === "map" ? `${productBase}#${id}` : `#${id}`;
-  return `<div class="nav-shell"><a id="product-home-logo" class="wordmark" data-route="home" href="${href("home")}" aria-label="${wordmark}\u9996\u9875"><img src="${logoBase}" alt="${wordmark} \u2014 ${tagline}"></a><nav aria-label="\u4E3B\u8981\u5BFC\u822A">${SKREK_GLOBAL_NAV.map(([id, label]) => `<a data-route="${id}" href="${href(id)}" class="${activeRoute === id ? "active" : ""}">${label}</a>`).join("")}</nav><div class="nav-actions"><a class="text-button account-state-link" data-account-state href="${accountBase}#login">\u767B\u5F55 / \u6CE8\u518C</a><a class="button small recovery-center-link" href="${recoveryBase}">\u6211\u7684\u6062\u590D\u4E2D\u5FC3</a><button id="menu" class="menu" aria-label="\u6253\u5F00\u5BFC\u822A" aria-expanded="false">\u2630</button></div></div>`;
+  return `<div class="nav-shell"><a id="product-home-logo" class="wordmark" data-route="home" href="${href("home")}" aria-label="${wordmark}\u9996\u9875"><img src="${logoBase}" alt="${logoAlt}"></a><nav aria-label="\u4E3B\u8981\u5BFC\u822A">${SKREK_GLOBAL_NAV.map(([id, label]) => `<a data-route="${id}" href="${href(id)}" class="${activeRoute === id ? "active" : ""}">${label}</a>`).join("")}</nav><div class="nav-actions"><a class="text-button account-state-link" data-account-state href="${accountBase}#login">\u767B\u5F55 / \u6CE8\u518C</a><a class="button small recovery-center-link" href="${recoveryBase}">\u6211\u7684\u6062\u590D\u4E2D\u5FC3</a><button id="menu" class="menu" aria-label="\u6253\u5F00\u5BFC\u822A" aria-expanded="false">\u2630</button></div></div>`;
 }
 
 // web/v3-crypto/product-v1.js
@@ -948,7 +966,7 @@ var readiness = () => {
 };
 var homePains = [
   { n: "01", title: "\u95EE\u9898", body: "\u6570\u5B57\u65F6\u4EE3\uFF0C\u5F88\u591A\u91CD\u8981\u8D44\u4EA7\u5E76\u6CA1\u6709\u6D88\u5931\uFF0C\u771F\u6B63\u6D88\u5931\u7684\u5F80\u5F80\u662F\u77E5\u9053\u5982\u4F55\u627E\u5230\u548C\u6062\u590D\u5B83\u4EEC\u7684\u4EBA\u3002", note: "\u6570\u5B57\u8D44\u4EA7\u3001\u8D26\u6237\u548C\u6062\u590D\u65B9\u5F0F\u9AD8\u5EA6\u5206\u6563\uFF0C\u800C\u771F\u6B63\u7406\u89E3\u5B83\u4EEC\u7684\u4EBA\u5F80\u5F80\u53EA\u6709\u672C\u4EBA\u3002" },
-  { n: "02", title: "SKREK \u505A\u4EC0\u4E48", body: "SKREK \u5E2E\u52A9\u4F60\u63D0\u524D\u68B3\u7406\u6570\u5B57\u8D44\u4EA7\u3001\u6570\u5B57\u8EAB\u4EFD\u548C\u91CD\u8981\u8D26\u6237\u7684\u6062\u590D\u7EBF\u7D22\u4E0E\u8DEF\u5F84\u3002", note: "\u628A\u5206\u6563\u5728\u8BB0\u5FC6\u3001\u8BBE\u5907\u548C\u4E0D\u540C\u4F4D\u7F6E\u7684\u4FE1\u606F\uFF0C\u6574\u7406\u6210\u7ED3\u6784\u5316 Recovery Map\u3002" },
+  { n: "02", title: `${brand.brand_name} \u505A\u4EC0\u4E48`, body: `${brand.brand_name} \u5E2E\u52A9\u4F60\u63D0\u524D\u68B3\u7406\u6570\u5B57\u8D44\u4EA7\u3001\u6570\u5B57\u8EAB\u4EFD\u548C\u91CD\u8981\u8D26\u6237\u7684\u6062\u590D\u7EBF\u7D22\u4E0E\u8DEF\u5F84\u3002`, note: "\u628A\u5206\u6563\u5728\u8BB0\u5FC6\u3001\u8BBE\u5907\u548C\u4E0D\u540C\u4F4D\u7F6E\u7684\u4FE1\u606F\uFF0C\u6574\u7406\u6210\u7ED3\u6784\u5316 Recovery Map\u3002" },
   { n: "03", title: "\u6700\u7EC8\u7ED3\u679C", body: "\u8BA9\u672A\u6765\u7684\u81EA\u5DF1\u3001\u5BB6\u4EBA\u6216\u6307\u5B9A\u6062\u590D\u4EBA\uFF0C\u5728\u771F\u6B63\u9700\u8981\u7684\u65F6\u5019\u77E5\u9053\u6709\u4EC0\u4E48\u3001\u5728\u54EA\u91CC\u3001\u5982\u4F55\u5F00\u59CB\u3002", note: "\u4E0D\u5FC5\u5728\u6700\u56F0\u96BE\u7684\u65F6\u5019\u91CD\u65B0\u731C\u6D4B\u548C\u5BFB\u627E\u6062\u590D\u8DEF\u5F84\u3002" }
 ];
 var homeSteps = [
@@ -995,10 +1013,10 @@ var continuityComparison = [
 var pricingState = { plan: "Standard", currency: "USD", comparisonOpen: false };
 var pricingAmount = (value) => value.toLocaleString("en-US");
 function nav() {
-  header.innerHTML = skrekGlobalHeader({ brand, activeRoute: state.route, productBase: canonicalHomeUrl(""), accountBase: canonicalAccountUrl().replace(/#login$/, ""), logoBase: "../assets/skrek-logo-formal.png?v=20260814-hd", recoveryBase: canonicalRecoveryUrl("recovery-center") });
+  header.innerHTML = skrekGlobalHeader({ brand, activeRoute: state.route, productBase: canonicalHomeUrl(""), accountBase: canonicalAccountUrl().replace(/#login$/, ""), logoBase: brand.logo.masterV1, recoveryBase: canonicalRecoveryUrl("recovery-center") });
 }
 function foot() {
-  footer.innerHTML = `<div class="footer-grid"><div><strong>${brand.wordmark}</strong><p>${brand.short_description}</p></div><div><b>\u4EA7\u54C1</b><button data-route="digital-assets">Digital Assets</button><button data-route="how-it-works">\u5982\u4F55\u8FD0\u4F5C</button><button data-recovery-map>\u521B\u5EFARecovery Map</button><button data-independent-recovery>\u72EC\u7ACB\u6062\u590D</button></div><div><b>\u8D44\u6E90</b><button data-route="knowledge">\u77E5\u8BC6\u5E93</button><button data-route="help">\u5E2E\u52A9\u4E0EFAQ</button><button data-help>\u586B\u5199\u6307\u5357</button></div><div><b>\u6CD5\u5F8B</b><span>Privacy \xB7 Planned</span><span>Terms \xB7 Planned</span><span>Security</span></div></div><div class="footer-bottom"><span>\xA9 2026 ${brand.brand_name}</span><span>\u4E2D\u6587\u4E3B\u7248 \xB7 Working Brand</span></div>`;
+  footer.innerHTML = `<div class="footer-grid"><div><strong>${brand.wordmark}</strong><p>${brand.short_description}</p></div><div><b>\u4EA7\u54C1</b><button data-route="digital-assets">Digital Assets</button><button data-route="how-it-works">\u5982\u4F55\u8FD0\u4F5C</button><button data-recovery-map>\u521B\u5EFARecovery Map</button><button data-independent-recovery>\u72EC\u7ACB\u6062\u590D</button></div><div><b>\u8D44\u6E90</b><button data-route="knowledge">\u77E5\u8BC6\u5E93</button><button data-route="help">\u5E2E\u52A9\u4E0EFAQ</button><button data-help>\u586B\u5199\u6307\u5357</button></div><div><b>\u6CD5\u5F8B</b><span>Privacy \xB7 Planned</span><span>Terms \xB7 Planned</span><span>Security</span></div></div><div class="footer-bottom"><span>\xA9 2026 ${brand.brand_name}</span><span>${brand.tagline}</span></div>`;
 }
 var compass = (value = readiness()) => `<div class="compass"><svg viewBox="0 0 42 42" aria-hidden="true"><circle class="compass-track" cx="21" cy="21" r="15.9" pathLength="100"></circle><circle class="compass-value" cx="21" cy="21" r="15.9" pathLength="100" stroke-dasharray="${value} 100"></circle></svg><div><strong>${value}%</strong><span>Recovery Readiness</span></div></div>`;
 function home() {
@@ -1007,8 +1025,8 @@ function home() {
   <section class="section pain"><div class="section-title"><p class="kicker">WHY PREPARE</p><h2>\u91CD\u8981\u7684\u4E0D\u662F\u4FDD\u5B58\u66F4\u591A\uFF0C<br>\u800C\u662F\u8BA9\u6062\u590D\u8DEF\u5F84\u4E0D\u518D\u53EA\u5B58\u5728\u4E8E\u8BB0\u5FC6\u91CC\u3002</h2></div><div class="three-grid">${homePains.map((x) => `<article><span>${x.n}</span><h3>${x.title}</h3><p>${x.body}</p><small>${x.note}</small></article>`).join("")}</div></section>
   <section class="section soft"><div class="section-title centered"><p class="kicker">HOW ${brand.brand_name} WORKS</p><h2>\u4E09\u6B65\u5EFA\u7ACB\u957F\u671F\u6062\u590D\u7248\u672C</h2></div><div class="steps">${homeSteps.map((x) => `<article><b>${x.n}</b><h3>${x.title}</h3><p>${x.body}</p></article>`).join("")}</div><div class="center"><button class="text-link" data-route="how-it-works">\u4E86\u89E3\u5B8C\u6574\u6D41\u7A0B \u2192</button></div></section>
   <section class="section"><div class="section-title"><p class="kicker">EXPLORE</p><h2>\u5148\u7406\u89E3\uFF0C\u518D\u51B3\u5B9A\u5982\u4F55\u5F00\u59CB\u3002</h2></div><div class="explore-grid">${homeExplore.map((x, i) => `<article class="explore-card tone-${i + 1}" data-route="${x.id}"><div><span>${x.title}</span><h3>${x.zh}</h3><p>${x.body}</p></div><b>Learn more \u2192</b></article>`).join("")}</div></section>
-  <section class="trust dark"><div><p class="kicker">SECURITY BY DESIGN</p><h2>\u771F\u6B63\u7684\u9690\u79C1\uFF0C\u4E0D\u53EA\u662F\u627F\u8BFA\u4E0D\u770B\uFF0C<br>\u800C\u662F\u8BA9\u5E73\u53F0\u6CA1\u6709\u6761\u4EF6\u5355\u72EC\u770B\u5230\u3002</h2><p>\u4F60\u7684\u6062\u590D\u8D44\u6599\u5C5E\u4E8E\u4F60\uFF0C\u5173\u952E\u63A7\u5236\u6743\u59CB\u7EC8\u7559\u5728\u4F60\u624B\u4E2D\u3002</p><p class="trust-summary">\u5E73\u53F0\u65E0\u6CD5\u5355\u72EC\u8BFB\u53D6\u3001\u65E0\u6CD5\u5355\u72EC\u6062\u590D\uFF0C\u771F\u6B63\u7684\u6062\u590D\u63A7\u5236\u6743\u59CB\u7EC8\u7559\u5728\u60A8\u624B\u4E2D\u3002</p><button class="button light" data-route="security">\u4E86\u89E3\u6211\u4EEC\u7684\u5B89\u5168\u8BBE\u8BA1 \u2192</button></div><div class="trust-list"><span><b>01\uFF5C\u5148\u52A0\u5BC6\uFF0C\u518D\u4E0A\u94FE</b><small>\u8D44\u6599\u5148\u5728\u672C\u5730\u5B8C\u6210\u52A0\u5BC6\uFF0C\u518D\u8FDB\u5165\u533A\u5757\u94FE\u957F\u671F\u5B58\u50A8\u7F51\u7EDC\uFF1B\u5E73\u53F0\u63A5\u89E6\u5230\u7684\u59CB\u7EC8\u662F\u52A0\u5BC6\u6587\u4EF6\u3002</small></span><span><b>02\uFF5C\u6062\u590D\u5BC6\u7801\u53EA\u7531\u60A8\u638C\u63E1</b><small>Recovery Password \u7531\u60A8\u672C\u4EBA\u8BBE\u7F6E\u5E76\u72EC\u7ACB\u4FDD\u7BA1\u3002SKREK \u4E0D\u4FDD\u5B58\uFF0C\u4E5F\u65E0\u6CD5\u66FF\u60A8\u4F7F\u7528\u5BC6\u7801\u89E3\u5BC6\u8D44\u6599\u3002</small></span><span><b>03\uFF5C\u4E13\u5C5E\u6062\u590D\u7EC4\u5408\u624D\u80FD\u6253\u5F00</b><small>\u53EA\u6709\u4E13\u5C5E\u6062\u590D\u5305\u4E0E\u60A8\u7684 Recovery Password \u6B63\u786E\u5339\u914D\uFF0C\u624D\u80FD\u9A8C\u8BC1\u5E76\u6062\u590D\u8D44\u6599\u3002</small></span></div></section>
-  <section class="section faq-preview"><div><p class="kicker">COMMON QUESTIONS</p><h2>\u5F00\u59CB\u524D\uFF0C\u4F60\u53EF\u80FD\u60F3\u77E5\u9053\u3002</h2><button class="text-link" data-route="help">\u67E5\u770B\u5168\u90E8\u5E2E\u52A9 \u2192</button></div><div>${["SKREK \u662F\u4E91\u76D8\u6216\u5BC6\u7801\u7BA1\u7406\u5668\u5417\uFF1F", "SKREK \u80FD\u770B\u5230\u6211\u7684 Recovery Map \u5417\uFF1F", "\u5982\u679C SKREK \u672A\u6765\u505C\u6B62\u8FD0\u8425\uFF0C\u6211\u8FD8\u80FD\u6062\u590D\u5417\uFF1F"].map((q) => `<details><summary>${q}</summary><p>${q.includes("\u4E91\u76D8") ? "\u4E0D\u662F\u3002SKREK\u7528\u4E8E\u5EFA\u7ACB\u52A0\u5BC6\u3001\u53EF\u72EC\u7ACB\u6062\u590D\u7684\u6570\u5B57\u8D44\u4EA7\u6062\u590D\u8DEF\u5F84\u3002" : q.includes("\u770B\u5230") ? "\u4E0D\u80FD\u3002\u8D44\u6599\u5148\u5728\u6D4F\u89C8\u5668\u672C\u5730\u52A0\u5BC6\uFF0C\u5E73\u53F0\u63A5\u89E6\u5230\u7684\u662F\u52A0\u5BC6\u7248\u672C\u3002" : "\u53EF\u4EE5\u3002\u4F7F\u7528\u81EA\u5DF1\u4FDD\u5B58\u4E14\u5339\u914D\u7684\u6062\u590D\u6750\u6599\u4E0E\u5BC6\u7801\uFF0C\u53EF\u901A\u8FC7\u72EC\u7ACB\u6062\u590D\u8DEF\u5F84\u6062\u590D\u3002"}</p></details>`).join("")}</div></section>
+  <section class="trust dark"><div><p class="kicker">SECURITY BY DESIGN</p><h2>\u771F\u6B63\u7684\u9690\u79C1\uFF0C\u4E0D\u53EA\u662F\u627F\u8BFA\u4E0D\u770B\uFF0C<br>\u800C\u662F\u8BA9\u5E73\u53F0\u6CA1\u6709\u6761\u4EF6\u5355\u72EC\u770B\u5230\u3002</h2><p>\u4F60\u7684\u6062\u590D\u8D44\u6599\u5C5E\u4E8E\u4F60\uFF0C\u5173\u952E\u63A7\u5236\u6743\u59CB\u7EC8\u7559\u5728\u4F60\u624B\u4E2D\u3002</p><p class="trust-summary">\u5E73\u53F0\u65E0\u6CD5\u5355\u72EC\u8BFB\u53D6\u3001\u65E0\u6CD5\u5355\u72EC\u6062\u590D\uFF0C\u771F\u6B63\u7684\u6062\u590D\u63A7\u5236\u6743\u59CB\u7EC8\u7559\u5728\u60A8\u624B\u4E2D\u3002</p><button class="button light" data-route="security">\u4E86\u89E3\u6211\u4EEC\u7684\u5B89\u5168\u8BBE\u8BA1 \u2192</button></div><div class="trust-list"><span><b>01\uFF5C\u5148\u52A0\u5BC6\uFF0C\u518D\u4E0A\u94FE</b><small>\u8D44\u6599\u5148\u5728\u672C\u5730\u5B8C\u6210\u52A0\u5BC6\uFF0C\u518D\u8FDB\u5165\u533A\u5757\u94FE\u957F\u671F\u5B58\u50A8\u7F51\u7EDC\uFF1B\u5E73\u53F0\u63A5\u89E6\u5230\u7684\u59CB\u7EC8\u662F\u52A0\u5BC6\u6587\u4EF6\u3002</small></span><span><b>02\uFF5C\u6062\u590D\u5BC6\u7801\u53EA\u7531\u60A8\u638C\u63E1</b><small>Recovery Password \u7531\u60A8\u672C\u4EBA\u8BBE\u7F6E\u5E76\u72EC\u7ACB\u4FDD\u7BA1\u3002${brand.brand_name} \u4E0D\u4FDD\u5B58\uFF0C\u4E5F\u65E0\u6CD5\u66FF\u60A8\u4F7F\u7528\u5BC6\u7801\u89E3\u5BC6\u8D44\u6599\u3002</small></span><span><b>03\uFF5C\u4E13\u5C5E\u6062\u590D\u7EC4\u5408\u624D\u80FD\u6253\u5F00</b><small>\u53EA\u6709\u4E13\u5C5E\u6062\u590D\u5305\u4E0E\u60A8\u7684 Recovery Password \u6B63\u786E\u5339\u914D\uFF0C\u624D\u80FD\u9A8C\u8BC1\u5E76\u6062\u590D\u8D44\u6599\u3002</small></span></div></section>
+  <section class="section faq-preview"><div><p class="kicker">COMMON QUESTIONS</p><h2>\u5F00\u59CB\u524D\uFF0C\u4F60\u53EF\u80FD\u60F3\u77E5\u9053\u3002</h2><button class="text-link" data-route="help">\u67E5\u770B\u5168\u90E8\u5E2E\u52A9 \u2192</button></div><div>${[`${brand.brand_name} \u662F\u4E91\u76D8\u6216\u5BC6\u7801\u7BA1\u7406\u5668\u5417\uFF1F`, `${brand.brand_name} \u80FD\u770B\u5230\u6211\u7684 Recovery Map \u5417\uFF1F`, `\u5982\u679C ${brand.brand_name} \u672A\u6765\u505C\u6B62\u8FD0\u8425\uFF0C\u6211\u8FD8\u80FD\u6062\u590D\u5417\uFF1F`].map((q) => `<details><summary>${q}</summary><p>${q.includes("\u4E91\u76D8") ? `\u4E0D\u662F\u3002${brand.brand_name}\u7528\u4E8E\u5EFA\u7ACB\u52A0\u5BC6\u3001\u53EF\u72EC\u7ACB\u6062\u590D\u7684\u6570\u5B57\u8D44\u4EA7\u6062\u590D\u8DEF\u5F84\u3002` : q.includes("\u770B\u5230") ? "\u4E0D\u80FD\u3002\u8D44\u6599\u5148\u5728\u6D4F\u89C8\u5668\u672C\u5730\u52A0\u5BC6\uFF0C\u5E73\u53F0\u63A5\u89E6\u5230\u7684\u662F\u52A0\u5BC6\u7248\u672C\u3002" : "\u53EF\u4EE5\u3002\u4F7F\u7528\u81EA\u5DF1\u4FDD\u5B58\u4E14\u5339\u914D\u7684\u6062\u590D\u6750\u6599\u4E0E\u5BC6\u7801\uFF0C\u53EF\u901A\u8FC7\u72EC\u7ACB\u6062\u590D\u8DEF\u5F84\u6062\u590D\u3002"}</p></details>`).join("")}</div></section>
   <section class="final-cta"><p class="kicker">YOUR NEXT STEP</p><h2>\u73B0\u5728\uFF0C\u7528\u51E0\u5206\u949F\u5F00\u59CB\u6574\u7406\u7B2C\u4E00\u9879\u6570\u5B57\u8D44\u4EA7\u3002</h2><div class="actions center-actions"><button class="button light" data-recovery-map>\u5F00\u59CB\u5EFA\u7ACBRecovery Map</button><button class="button ghost-light" data-independent-recovery>\u72EC\u7ACB\u6062\u590D</button></div></section>`;
 }
 var digitalAssetGroups = [
