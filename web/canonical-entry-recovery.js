@@ -1,7 +1,7 @@
 (()=>{
   const app=document.querySelector('#app'),gate=globalThis.SKREK_RUNTIME_GATE;
   if(!gate){app.innerHTML='<section class="card" role="alert"><h1>当前入口不受支持</h1><p>请使用正式 HTTPS 测试入口。</p><a href="https://sixtrees778899-stack.github.io/SKREK-auth-test/web/recover.html">打开正式 HTTPS 测试入口</a></section>';return;}
-  const query=new URLSearchParams(location.search),diagnosticRelease='legavik-phase3ab-20260905-2',diagnosticMode=query.get('mode')==='version-update'&&query.get('version_number')==='4';
+  const query=new URLSearchParams(location.search),diagnosticRelease='legavik-phase3c-20260905-1',diagnosticMode=query.get('mode')==='version-update'&&query.get('version_number')==='4';
   if(diagnosticMode){
     const releaseIdentity=document.querySelector('meta[name="skrek-release"]')?.content??'';
     const validEntry=location.protocol==='https:'&&location.origin===gate.canonicalOrigin&&location.pathname===`${gate.canonicalBase}/web/recover.html`&&(query.get('release')??query.get('deploy'))===diagnosticRelease&&releaseIdentity===diagnosticRelease;
@@ -15,8 +15,8 @@
     document.documentElement.dataset.diagnosticRelease=diagnosticRelease;
   }
   const pagesRuntime=location.origin===gate.canonicalOrigin;
-  const appScript=pagesRuntime?'./recover.bundle.js?v=legavik-phase3ab-20260905-2':'./recover.js?v=legavik-phase3ab-20260905-2';
-  const approved=gate.boot({rootId:'app',canonicalPath:'/web/recover.html?release=legavik-phase3ab-20260905-2',bundleMarker:'recoveryBundleRelease',scripts:[{src:appScript,type:'module',id:'recovery-app-script'}]});
+  const appScript=pagesRuntime?'./recover.bundle.js?v=legavik-phase3c-20260905-1':'./recover.js?v=legavik-phase3c-20260905-1';
+  const approved=gate.boot({rootId:'app',canonicalPath:'/web/recover.html?release=legavik-phase3c-20260905-1',bundleMarker:'recoveryBundleRelease',scripts:[{src:appScript,type:'module',id:'recovery-app-script'}]});
   if(!approved)return;
-  setTimeout(()=>{if(app?.dataset.runtimeState!=='LOADING')return;app.dataset.runtimeState='FAILED';app.innerHTML='<section class="card initialization-failure" role="alert"><h1>安全工作区未能正常打开</h1><p>请重新加载，或返回客户中心后再次进入。</p><div class="actions"><button id="reload-secure-workspace">重新加载</button><a class="button secondary" href="./account/index.html?section=maps&release=legavik-phase3ab-20260905-2#center">返回客户中心</a></div></section>';document.querySelector('#reload-secure-workspace')?.addEventListener('click',()=>location.reload());},12000);
+  setTimeout(()=>{if(app?.dataset.runtimeState!=='LOADING')return;app.dataset.runtimeState='FAILED';app.innerHTML='<section class="card initialization-failure" role="alert"><h1>安全工作区未能正常打开</h1><p>请重新加载，或返回客户中心后再次进入。</p><div class="actions"><button id="reload-secure-workspace">重新加载</button><a class="button secondary" href="./account/index.html?section=maps&release=legavik-phase3c-20260905-1#center">返回客户中心</a></div></section>';document.querySelector('#reload-secure-workspace')?.addEventListener('click',()=>location.reload());},12000);
 })();
