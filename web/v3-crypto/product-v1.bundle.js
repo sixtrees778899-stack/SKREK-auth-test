@@ -896,7 +896,7 @@ function validateRecoveryPassword(password, confirmation, acknowledged, { policy
 // src/ui/canonical-customer-links.js
 var APPROVED_TEST_ORIGIN = "https://sixtrees778899-stack.github.io";
 var APPROVED_TEST_BASE = "/SKREK-auth-test";
-var CURRENT_TEST_RELEASE = "legavik-phase3ab-20260905-1";
+var CURRENT_TEST_RELEASE = "legavik-phase3ab-20260905-2";
 var ROUTES = Object.freeze({
   home: "/web/v3-crypto/index.html",
   account: "/web/account/index.html",
