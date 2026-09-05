@@ -1,7 +1,7 @@
 (()=>{
   const canonicalOrigin='https://sixtrees778899-stack.github.io';
   const canonicalBase='/SKREK-auth-test';
-  const release='final-ui-copy-closure-20260905-1';
+  const release='final-minor-ui-cleanup-20260905-1';
   const approvedPaths=new Set([`${canonicalBase}/web/account/index.html`,`${canonicalBase}/web/v2/index.html`,`${canonicalBase}/web/recover.html`]);
   const requestedRelease=()=>new URLSearchParams(location.search).get('release')??new URLSearchParams(location.search).get('deploy');
   const pageRelease=()=>document.querySelector('meta[name="skrek-release"]')?.content??'';
