@@ -875,12 +875,29 @@ function validateRecoveryPassword(password, confirmation, acknowledged, { policy
   return { valid, status, length, categories, satisfied_classes: satisfied, required_classes: policy.minimum_character_classes, issues };
 }
 
-// src/ui/recovery-route.js
-var RECOVERY_PATH = "/web/recover.html";
-function recoveryUrl(source) {
-  const value = String(source ?? "").trim();
-  return value ? `${RECOVERY_PATH}?source=${encodeURIComponent(value)}` : RECOVERY_PATH;
+// src/ui/canonical-customer-links.js
+var APPROVED_TEST_ORIGIN = "https://sixtrees778899-stack.github.io";
+var APPROVED_TEST_BASE = "/SKREK-auth-test";
+var CURRENT_TEST_RELEASE = "home-canonical-link-gate-20260905-1";
+var ROUTES = Object.freeze({
+  home: "/web/v3-crypto/index.html",
+  account: "/web/account/index.html",
+  create: "/web/v2/index.html",
+  recovery: "/web/recover.html"
+});
+function canonicalCustomerUrl(route2, { params = {}, hash = "" } = {}) {
+  const pathname = ROUTES[route2];
+  if (!pathname) throw new TypeError(`Unknown canonical customer route: ${route2}`);
+  const url = new URL(`${APPROVED_TEST_BASE}${pathname}`, APPROVED_TEST_ORIGIN);
+  for (const [key, value] of Object.entries(params)) if (value !== void 0 && value !== null && value !== "") url.searchParams.set(key, String(value));
+  url.searchParams.set("release", CURRENT_TEST_RELEASE);
+  url.hash = hash ? `#${String(hash).replace(/^#/, "")}` : "";
+  return url.href;
 }
+var canonicalHomeUrl = (hash = "home") => canonicalCustomerUrl("home", { hash });
+var canonicalAccountUrl = (hash = "login", params = {}) => canonicalCustomerUrl("account", { params, hash });
+var canonicalCreateUrl = (params = {}) => canonicalCustomerUrl("create", { params: { entry: "guide", ...params } });
+var canonicalRecoveryUrl = (source = "recovery-center", params = {}) => canonicalCustomerUrl("recovery", { params: { source, ...params } });
 
 // src/ui/skrek-global-header.js
 var SKREK_GLOBAL_NAV = [
@@ -892,7 +909,7 @@ var SKREK_GLOBAL_NAV = [
   ["about", "\u8054\u7CFB\u6211\u4EEC"]
 ];
 var esc = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
-function skrekGlobalHeader({ brand: brand2, activeRoute = "home", mode = "product", productBase = "../v3-crypto/index.html?release=global-nav-v1", accountBase = "/web/account/index.html", logoBase = "/web/assets/skrek-logo-formal.png?v=20260814-hd", recoveryBase = recoveryUrl("recovery-center") } = {}) {
+function skrekGlobalHeader({ brand: brand2, activeRoute = "home", mode = "product", productBase = canonicalHomeUrl(""), accountBase = canonicalAccountUrl("", {}).replace(/#$/, ""), logoBase = "/web/assets/skrek-logo-formal.png?v=20260814-hd", recoveryBase = canonicalRecoveryUrl("recovery-center") } = {}) {
   const wordmark = esc(brand2?.wordmark ?? "SKREK"), tagline = esc(brand2?.tagline ?? "Digital Asset Recovery & Continuity");
   const href = (id) => mode === "map" ? `${productBase}#${id}` : `#${id}`;
   return `<div class="nav-shell"><a id="product-home-logo" class="wordmark" data-route="home" href="${href("home")}" aria-label="${wordmark}\u9996\u9875"><img src="${logoBase}" alt="${wordmark} \u2014 ${tagline}"></a><nav aria-label="\u4E3B\u8981\u5BFC\u822A">${SKREK_GLOBAL_NAV.map(([id, label]) => `<a data-route="${id}" href="${href(id)}" class="${activeRoute === id ? "active" : ""}">${label}</a>`).join("")}</nav><div class="nav-actions"><a class="text-button account-state-link" data-account-state href="${accountBase}#login">\u767B\u5F55 / \u6CE8\u518C</a><a class="button small recovery-center-link" href="${recoveryBase}">\u6211\u7684\u6062\u590D\u4E2D\u5FC3</a><button id="menu" class="menu" aria-label="\u6253\u5F00\u5BFC\u822A" aria-expanded="false">\u2630</button></div></div>`;
@@ -978,7 +995,7 @@ var continuityComparison = [
 var pricingState = { plan: "Standard", currency: "USD", comparisonOpen: false };
 var pricingAmount = (value) => value.toLocaleString("en-US");
 function nav() {
-  header.innerHTML = skrekGlobalHeader({ brand, activeRoute: state.route, accountBase: "../account/index.html", logoBase: "../assets/skrek-logo-formal.png?v=20260814-hd", recoveryBase: "../recover.html?source=recovery-center" });
+  header.innerHTML = skrekGlobalHeader({ brand, activeRoute: state.route, productBase: canonicalHomeUrl(""), accountBase: canonicalAccountUrl().replace(/#login$/, ""), logoBase: "../assets/skrek-logo-formal.png?v=20260814-hd", recoveryBase: canonicalRecoveryUrl("recovery-center") });
 }
 function foot() {
   footer.innerHTML = `<div class="footer-grid"><div><strong>${brand.wordmark}</strong><p>${brand.short_description}</p></div><div><b>\u4EA7\u54C1</b><button data-route="digital-assets">Digital Assets</button><button data-route="how-it-works">\u5982\u4F55\u8FD0\u4F5C</button><button data-recovery-map>\u521B\u5EFARecovery Map</button><button data-independent-recovery>\u72EC\u7ACB\u6062\u590D</button></div><div><b>\u8D44\u6E90</b><button data-route="knowledge">\u77E5\u8BC6\u5E93</button><button data-route="help">\u5E2E\u52A9\u4E0EFAQ</button><button data-help>\u586B\u5199\u6307\u5357</button></div><div><b>\u6CD5\u5F8B</b><span>Privacy \xB7 Planned</span><span>Terms \xB7 Planned</span><span>Security</span></div></div><div class="footer-bottom"><span>\xA9 2026 ${brand.brand_name}</span><span>\u4E2D\u6587\u4E3B\u7248 \xB7 Working Brand</span></div>`;
@@ -1131,9 +1148,8 @@ function pricingPage() {
     document.querySelector("[data-pricing-comparison]")?.focus();
   });
   document.querySelector("[data-buy-plan]")?.addEventListener("click", (event) => {
-    const selected = event.currentTarget.dataset.buyPlan, price = pricingPlans[selected].prices[pricingState.currency], params = new URLSearchParams({ purchase: "1", plan: selected, currency: pricingState.currency, price: String(price) });
-    if (["localhost", "127.0.0.1"].includes(location.hostname)) params.set("test", "1");
-    location.href = `../account/index.html?${params.toString()}#signup`;
+    const selected = event.currentTarget.dataset.buyPlan, price = pricingPlans[selected].prices[pricingState.currency];
+    location.href = canonicalAccountUrl("signup", { purchase: "1", plan: selected, currency: pricingState.currency, price: String(price) });
   });
   document.querySelector("[data-consultation]")?.addEventListener("click", () => navigate("help"));
 }
@@ -1451,8 +1467,8 @@ async function addFiles(input) {
 function bind() {
   document.querySelectorAll("[data-route]").forEach((el) => el.onclick = () => {
     const target = el.dataset.route;
-    if (target === "independent-recovery") location.href = "./recover.html?release=product-experience-v1";
-    else if (["digital-assets", "map", "preview"].includes(target)) location.href = "../v2/index.html?release=product-experience-v1";
+    if (target === "independent-recovery") location.href = canonicalRecoveryUrl("recovery-center");
+    else if (["map", "preview"].includes(target)) location.href = canonicalCreateUrl();
     else navigate(target);
   });
   document.querySelectorAll("[data-category]").forEach((el) => el.onclick = () => {
@@ -1545,12 +1561,10 @@ function bindSaveFeedback() {
 }
 function bindProductIntegration() {
   document.querySelectorAll("[data-recovery-map]").forEach((el) => el.onclick = () => {
-    const params = new URLSearchParams({ entry: "guide", release: "recovery-map-current-v2" });
-    if (["localhost", "127.0.0.1"].includes(location.hostname) && new URLSearchParams(location.search).get("test") === "1") params.set("test", "1");
-    location.href = `../v2/index.html?${params.toString()}`;
+    location.href = canonicalCreateUrl();
   });
   document.querySelectorAll("[data-independent-recovery]").forEach((el) => el.onclick = () => {
-    location.href = "./recover.html?release=product-integration-v1";
+    location.href = canonicalRecoveryUrl("recovery-center");
   });
   document.querySelectorAll('[data-route="digital-assets"]').forEach((el) => el.onclick = () => navigate("digital-assets"));
 }

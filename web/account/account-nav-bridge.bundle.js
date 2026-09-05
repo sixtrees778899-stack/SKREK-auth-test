@@ -20253,16 +20253,36 @@ ${suffix}`;
   }
   if (shouldShowDeprecationWarning()) console.warn("\u26A0\uFE0F  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715");
 
+  // src/ui/canonical-customer-links.js
+  var APPROVED_TEST_ORIGIN = "https://sixtrees778899-stack.github.io";
+  var APPROVED_TEST_BASE = "/SKREK-auth-test";
+  var CURRENT_TEST_RELEASE = "home-canonical-link-gate-20260905-1";
+  var ROUTES = Object.freeze({
+    home: "/web/v3-crypto/index.html",
+    account: "/web/account/index.html",
+    create: "/web/v2/index.html",
+    recovery: "/web/recover.html"
+  });
+  function canonicalCustomerUrl(route, { params = {}, hash = "" } = {}) {
+    const pathname = ROUTES[route];
+    if (!pathname) throw new TypeError(`Unknown canonical customer route: ${route}`);
+    const url = new URL(`${APPROVED_TEST_BASE}${pathname}`, APPROVED_TEST_ORIGIN);
+    for (const [key, value] of Object.entries(params)) if (value !== void 0 && value !== null && value !== "") url.searchParams.set(key, String(value));
+    url.searchParams.set("release", CURRENT_TEST_RELEASE);
+    url.hash = hash ? `#${String(hash).replace(/^#/, "")}` : "";
+    return url.href;
+  }
+  var canonicalAccountUrl = (hash = "login", params = {}) => canonicalCustomerUrl("account", { params, hash });
+
   // src/account/account-nav-bridge.js
   var config = globalThis.SKREK_PUBLIC_CONFIG ?? {};
-  var accountUrl = new URL("./index.html", document.currentScript?.src ?? location.href).pathname;
   var identity = "";
   function displayName(session) {
     return (session?.user?.email ?? "").split("@")[0];
   }
   function paint() {
     document.querySelectorAll("[data-account-state]").forEach((link) => {
-      const label = identity || "\u767B\u5F55 / \u6CE8\u518C", href = identity ? `${accountUrl}#center` : `${accountUrl}#login`, aria = identity ? `${identity}\uFF0C\u8FDB\u5165\u5BA2\u6237\u4E2D\u5FC3` : "\u767B\u5F55\u6216\u6CE8\u518C";
+      const label = identity || "\u767B\u5F55 / \u6CE8\u518C", href = canonicalAccountUrl(identity ? "center" : "login"), aria = identity ? `${identity}\uFF0C\u8FDB\u5165\u5BA2\u6237\u4E2D\u5FC3` : "\u767B\u5F55\u6216\u6CE8\u518C";
       if (link.textContent !== label) link.textContent = label;
       if (link.getAttribute("href") !== href) link.setAttribute("href", href);
       if (link.getAttribute("aria-label") !== aria) link.setAttribute("aria-label", aria);
