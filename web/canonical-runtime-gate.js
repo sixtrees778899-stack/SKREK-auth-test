@@ -1,13 +1,13 @@
 (()=>{
   const canonicalOrigin='https://sixtrees778899-stack.github.io';
   const canonicalBase='/SKREK-auth-test';
-  const release='p0-attachment-contract-20260905-1';
+  const release='final-ui-closure-20260905-1';
   const approvedPaths=new Set([`${canonicalBase}/web/account/index.html`,`${canonicalBase}/web/v2/index.html`,`${canonicalBase}/web/recover.html`]);
   const requestedRelease=()=>new URLSearchParams(location.search).get('release')??new URLSearchParams(location.search).get('deploy');
   const pageRelease=()=>document.querySelector('meta[name="skrek-release"]')?.content??'';
   const isApproved=()=>location.protocol==='https:'&&location.origin===canonicalOrigin&&approvedPaths.has(location.pathname)&&pageRelease()===release&&(!requestedRelease()||requestedRelease()===release);
   const canonicalUrl=path=>`${canonicalOrigin}${canonicalBase}${path.startsWith('/')?path:`/${path}`}`;
-  const failureMarkup=({title,message,url})=>`<main style="min-height:70vh;display:grid;place-items:center;padding:24px;background:#f7f4ed;color:#17362d;font-family:system-ui,sans-serif"><section role="alert" style="width:min(620px,100%);padding:32px;border:1px solid #d8dfda;border-radius:16px;background:#fff"><p style="margin:0 0 8px;font-size:12px;letter-spacing:.12em">SKREK RUNTIME</p><h1 style="margin:0 0 12px;font-size:24px">${title}</h1><p style="margin:0 0 20px;line-height:1.65">${message}</p><a href="${url}" style="display:inline-block;padding:11px 16px;border-radius:8px;background:#174c3c;color:#fff;text-decoration:none">打开正式 HTTPS 测试入口</a><p style="margin:18px 0 0;font-size:12px;color:#66766f">Release: ${release}</p></section></main>`;
+  const failureMarkup=({title,message,url})=>`<main style="min-height:70vh;display:grid;place-items:center;padding:24px;background:#f7f4ed;color:#17362d;font-family:system-ui,sans-serif"><section role="alert" style="width:min(620px,100%);padding:32px;border:1px solid #d8dfda;border-radius:16px;background:#fff"><p style="margin:0 0 8px;font-size:12px;letter-spacing:.12em">SKREK 安全入口</p><h1 style="margin:0 0 12px;font-size:24px">${title}</h1><p style="margin:0 0 20px;line-height:1.65">${message}</p><a href="${url}" style="display:inline-block;padding:11px 16px;border-radius:8px;background:#174c3c;color:#fff;text-decoration:none">打开最新安全入口</a></section></main>`;
   const renderFailure=(root,{kind='unsupported',canonicalPath='/web/account/index.html?section=maps#center'}={})=>{
     if(!root)return;
     root.dataset.runtimeState='FAILED';
