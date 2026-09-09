@@ -1,116 +1,116 @@
 {
   "schema_version": 1,
-  "deployment_identity": "legavik-browser-consistency-v1-20260909-1",
-  "release": "legavik-browser-consistency-v1-20260909-1",
-  "release_timestamp": "2026-09-09T00:00:00Z",
-  "source_commit": "f74e88da3f87d97036c44afb19f4be6cb0d07d22",
+  "deployment_identity": "legavik-annual-service-renewal-v1-20260909-1",
+  "release": "legavik-annual-service-renewal-v1-20260909-1",
+  "release_timestamp": "2026-09-09T05:30:00Z",
+  "source_commit": "174fa23f3192d799be37a1f3fb3ff6916cc77237",
   "canonical_origin": "https://sixtrees778899-stack.github.io",
-  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-browser-consistency-v1-20260909-1#home",
+  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-annual-service-renewal-v1-20260909-1#home",
   "html": [
     {
       "path": "web/v3-crypto/index.html",
-      "sha256": "cd57d38ef7c99265b4667a2ec1be849d006a5b2d51ab4ebd4abe9dfee65abc15"
+      "sha256": "436b294cdb10f54538e2368ba789eda61b3247249e1da140a503e837bfcd052a"
     },
     {
       "path": "web/account/index.html",
-      "sha256": "aa32b13d48b7a4e40b956c0a3b883b3ae8e894e5accfdab5e7a2ad563e9c2a99"
+      "sha256": "8449b1eafecac613b7bda580bef1408ddccd35e956e1451178aabf66c8f6959a"
     },
     {
       "path": "web/v2/index.html",
-      "sha256": "6ed93ad2d69847e56d560db1c579973c53bfa2fc01cb502852ab8e347969cab0"
+      "sha256": "78f3d89c96cc02dd6aa92264cbbec780c99a36934bdbfea1e56ed91c75d59dad"
     },
     {
       "path": "web/recover.html",
-      "sha256": "773c72aee0b22f05bee7e21a07b9b25712d55642e377debd37a1fc8f28ed6e2f"
+      "sha256": "c259875a1cc9a9ed40a8b3b5545d3afe7c8f41df690ae46bde9450f6ddbebf0a"
     }
   ],
   "assets": [
     {
-      "path": "web/canonical-runtime-gate.legavik-browser-consistency-v1-20260909-1.js",
-      "sha256": "a46b70fe195838a8015ac6515aa36eb08dca9a5b352306a461c23e6c98487a30"
+      "path": "web/canonical-runtime-gate.legavik-annual-service-renewal-v1-20260909-1.js",
+      "sha256": "74d25026dbe11d0713228a8738a1c84b924304471a2176d0f6d8726986d47bc3"
     },
     {
-      "path": "web/canonical-entry-recovery.legavik-browser-consistency-v1-20260909-1.js",
-      "sha256": "a153b4e40748296fb3323a9caedd904abc04717a57b60d00a5efbbb935833c3b"
+      "path": "web/canonical-entry-recovery.legavik-annual-service-renewal-v1-20260909-1.js",
+      "sha256": "db1048e7ad6013a74c68a6846634788dcb4bfc91eebd98746b06145d5bffb807"
     },
     {
-      "path": "web/recover.legavik-browser-consistency-v1-20260909-1.bundle.js",
-      "sha256": "d07d978502281afd9e82561732ccb0e2f016794acf481dc281521b210677e5eb"
+      "path": "web/recover.legavik-annual-service-renewal-v1-20260909-1.bundle.js",
+      "sha256": "7e524587b699e8f35e342514489e07736dac259c53edf27e074202be1e00e921"
     },
     {
-      "path": "web/styles.legavik-browser-consistency-v1-20260909-1.css",
+      "path": "web/styles.legavik-annual-service-renewal-v1-20260909-1.css",
       "sha256": "4efb1b1719d3c9e1dba4fef71e2a9055aa5d55b51e601899b5b25c58e0f47325"
     },
     {
-      "path": "web/recovery-workspace.legavik-browser-consistency-v1-20260909-1.css",
+      "path": "web/recovery-workspace.legavik-annual-service-renewal-v1-20260909-1.css",
       "sha256": "d3d7091b9888de662b0d8ef9ca4eb10dc0520c012791a1744a033973b98160e2"
     },
     {
-      "path": "web/account/canonical-entry.legavik-browser-consistency-v1-20260909-1.js",
-      "sha256": "3533aa9d7a3319872ffa4b3c7ab705bf6c9cdbf5cd9bb8b4ac3c064491cfc884"
+      "path": "web/account/canonical-entry.legavik-annual-service-renewal-v1-20260909-1.js",
+      "sha256": "2261c22ea287156555e1873a7dc8cdbdf3121796467294a1be609202881e519c"
     },
     {
-      "path": "web/account/public-config.legavik-browser-consistency-v1-20260909-1.js",
+      "path": "web/account/public-config.legavik-annual-service-renewal-v1-20260909-1.js",
       "sha256": "3dc6074b161b599386e22c05bfa76507d5fe6c16221ac901a55a08b5c30165db"
     },
     {
-      "path": "web/account/account-nav-bridge.legavik-browser-consistency-v1-20260909-1.bundle.js",
-      "sha256": "20a0884c6a7238c60a8cc34edd6bd20575a1baf751e9a8a7049f1cb61bfee7a0"
+      "path": "web/account/account-nav-bridge.legavik-annual-service-renewal-v1-20260909-1.bundle.js",
+      "sha256": "2191cf4fbada7a3a0d83335f650317e36c2651c11b53d880f2e0903d66bbfe5d"
     },
     {
-      "path": "web/account/account-app.legavik-browser-consistency-v1-20260909-1.bundle.js",
-      "sha256": "a68456947253d7c50bb631f268258b05b009ff20b82544163f7039a5a8864d16"
+      "path": "web/account/account-app.legavik-annual-service-renewal-v1-20260909-1.bundle.js",
+      "sha256": "bf4a355b5e0829e891381c84cef616cb36e8a85c662f3c7458d8b55d38991c7f"
     },
     {
-      "path": "web/account/account.legavik-browser-consistency-v1-20260909-1.css",
+      "path": "web/account/account.legavik-annual-service-renewal-v1-20260909-1.css",
       "sha256": "555fc4ad3ba99b70f93f58f358c266f2932f5c97c187731fbc4a12237db614aa"
     },
     {
-      "path": "web/account/auth-ux.legavik-browser-consistency-v1-20260909-1.css",
+      "path": "web/account/auth-ux.legavik-annual-service-renewal-v1-20260909-1.css",
       "sha256": "5823ddc485c6f37e49c30f602861c9a4afa360f1c445777eddcc88ca614ca35f"
     },
     {
-      "path": "web/v2/canonical-entry.legavik-browser-consistency-v1-20260909-1.js",
-      "sha256": "3a5d2f47a7909b89460042a9d59e9c65da256e923c94d5df74ab58970b910f0d"
+      "path": "web/v2/canonical-entry.legavik-annual-service-renewal-v1-20260909-1.js",
+      "sha256": "953d9b463ba2fa507a10c5cb03896f6a86efc037835719dfc1d4c388e3a30229"
     },
     {
-      "path": "web/v2/v2-app.legavik-browser-consistency-v1-20260909-1.bundle.js",
-      "sha256": "b429cb657d72a43c56327e2788337fed0c0ca514bb7d10fba45aa8de1f33ee36"
+      "path": "web/v2/v2-app.legavik-annual-service-renewal-v1-20260909-1.bundle.js",
+      "sha256": "4576d21dd6724a53adfd8b7874b3d469af454e09658aa16c82380ad3abee8217"
     },
     {
-      "path": "web/v2/v2.legavik-browser-consistency-v1-20260909-1.css",
+      "path": "web/v2/v2.legavik-annual-service-renewal-v1-20260909-1.css",
       "sha256": "644a10ed80352be4e373f5a6cb7e8e7e28de2e9ba50ec7e5800fdc074eb08f4a"
     },
     {
-      "path": "web/v2/readiness.legavik-browser-consistency-v1-20260909-1.css",
+      "path": "web/v2/readiness.legavik-annual-service-renewal-v1-20260909-1.css",
       "sha256": "ab68f659ecf59ec0cdb2cadd34c02ef24802686ff82bf35f85dc50ba3018728a"
     },
     {
-      "path": "web/v2/product-integration.legavik-browser-consistency-v1-20260909-1.css",
+      "path": "web/v2/product-integration.legavik-annual-service-renewal-v1-20260909-1.css",
       "sha256": "a7b2be8efd692f0d7e2cceffaef28ddbcfad43eb0245be46b0ca4279a3763699"
     },
     {
-      "path": "web/v3-crypto/canonical-entry.legavik-browser-consistency-v1-20260909-1.js",
-      "sha256": "43c89726c66647e44d132fe27d0aed809b2a2507819a0527bc463303c963b955"
+      "path": "web/v3-crypto/canonical-entry.legavik-annual-service-renewal-v1-20260909-1.js",
+      "sha256": "d2d258c4e592ee7e4a168b8fb068104f3fd8c757e7f1f98985cae68e3750b0b4"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-browser-consistency-v1-20260909-1.bundle.js",
-      "sha256": "401e0b5f051e9479f9cc93bcfaf6cf4ce05c0b2673921606ebcddfd4744e1fed"
+      "path": "web/v3-crypto/product-v1.legavik-annual-service-renewal-v1-20260909-1.bundle.js",
+      "sha256": "1cc75741a2c12f95d56d33bf0bd6152ea1305f21eeccb2a01e58436f4e934fef"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-browser-consistency-v1-20260909-1.css",
-      "sha256": "0a7222d38928760b0215b3969764f35f139e5e01f0daf2bf902c416ad947c9b4"
+      "path": "web/v3-crypto/product-v1.legavik-annual-service-renewal-v1-20260909-1.css",
+      "sha256": "0c3f822377f4da5b8588408017d83213a02966de6202df78d2a61a0bdb6e07dd"
     },
     {
-      "path": "web/v3-crypto/product-knowledge-pack-v1.legavik-browser-consistency-v1-20260909-1.js",
+      "path": "web/v3-crypto/product-knowledge-pack-v1.legavik-annual-service-renewal-v1-20260909-1.js",
       "sha256": "9e18ae809734d7fe1415ad32a3dcf02983e4dc805b81839c90a54432ab2e8753"
     },
     {
-      "path": "web/v3-crypto/approved-knowledge.legavik-browser-consistency-v1-20260909-1.js",
+      "path": "web/v3-crypto/approved-knowledge.legavik-annual-service-renewal-v1-20260909-1.js",
       "sha256": "47c492dfa30ad65386341d9dfc2a4b64f0cd95725ae8ac00414c037a0fc84322"
     },
     {
-      "path": "src/ui/skrek-global-header.legavik-browser-consistency-v1-20260909-1.css",
+      "path": "src/ui/skrek-global-header.legavik-annual-service-renewal-v1-20260909-1.css",
       "sha256": "cedadaf8ed1135a636507dbec6e6a5996e357c34dac4e89872b38717fa8f1e74"
     }
   ]
