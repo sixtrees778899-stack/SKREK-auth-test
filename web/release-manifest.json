@@ -1,116 +1,116 @@
 {
   "schema_version": 1,
-  "deployment_identity": "legavik-routing-runtime-stability-20260909-1",
-  "release": "legavik-routing-runtime-stability-20260909-1",
-  "release_timestamp": "2026-09-09T11:00:00Z",
-  "source_commit": "447afbd121b0092affc8b653f4c4595397cef7b0",
+  "deployment_identity": "legavik-product-service-v1-20260910-1",
+  "release": "legavik-product-service-v1-20260910-1",
+  "release_timestamp": "2026-09-10T00:00:00Z",
+  "source_commit": "505889cacc085fcec2910987770aff591365fef7",
   "canonical_origin": "https://sixtrees778899-stack.github.io",
-  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-routing-runtime-stability-20260909-1#home",
+  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-product-service-v1-20260910-1#home",
   "html": [
     {
       "path": "web/v3-crypto/index.html",
-      "sha256": "3df90e3398a67bd4f57a73a2681ab9829f14d7b4d7768822fcf091f69fc5a162"
+      "sha256": "ea1db52565eb700043ab20fb49682d1a123ef40938968e447c3fd6e550f80c46"
     },
     {
       "path": "web/account/index.html",
-      "sha256": "b4893a5c8c5a193fb7edeedd6e9bf621aa2e6b75091e1024110cd385247611c9"
+      "sha256": "d5d6234000ae7b90182898bb7575cb53523dc6f1cf56bda3722ff5db3228a7c7"
     },
     {
       "path": "web/v2/index.html",
-      "sha256": "4a11f31302057312c6e5209fc59b85dd638d390031e05e64e5b7bcd1ddbdd7c5"
+      "sha256": "697d98784d42eb1c564aa8b08a91bc3a0cabf8afbe858e0df50e1d2f3ace1d5f"
     },
     {
       "path": "web/recover.html",
-      "sha256": "d68816b24dae2b4aa4bcce542a524076bd34bde68ad5ca055760bf1b0b3b2d73"
+      "sha256": "b257472e89bd51ff7755a228464ca013b06f3864832563c16dd210a215c248f9"
     }
   ],
   "assets": [
     {
-      "path": "web/canonical-runtime-gate.legavik-routing-runtime-stability-20260909-1.js",
-      "sha256": "564e2454cf64214db26295955a0051d61ec4cc623a66ef6a54759cadd5b003d9"
+      "path": "web/canonical-runtime-gate.legavik-product-service-v1-20260910-1.js",
+      "sha256": "c2361c75d235d5f12d1e87b354327234e2be35f03f7d093ebaeed42cef4e805a"
     },
     {
-      "path": "web/canonical-entry-recovery.legavik-routing-runtime-stability-20260909-1.js",
-      "sha256": "b16853cb45d371d20b79cec8b2d4e6a98c2c562407a1da6fafdf82b07a97c99f"
+      "path": "web/canonical-entry-recovery.legavik-product-service-v1-20260910-1.js",
+      "sha256": "04a5bb673ef29ae4168d0ccb0e79c4070f8e43b4e904446e8b26a7222c008a0b"
     },
     {
-      "path": "web/recover.legavik-routing-runtime-stability-20260909-1.bundle.js",
-      "sha256": "bb23d8e5fa452799f4cfb6a2e1ccacabffb4ccf1bbf3e2017becaf663e6fb475"
+      "path": "web/recover.legavik-product-service-v1-20260910-1.bundle.js",
+      "sha256": "3e5f37bf3eda91197050346511fe061b5e2054ce4ee64db5c6592ce50f9df43d"
     },
     {
-      "path": "web/styles.legavik-routing-runtime-stability-20260909-1.css",
+      "path": "web/styles.legavik-product-service-v1-20260910-1.css",
       "sha256": "4efb1b1719d3c9e1dba4fef71e2a9055aa5d55b51e601899b5b25c58e0f47325"
     },
     {
-      "path": "web/recovery-workspace.legavik-routing-runtime-stability-20260909-1.css",
+      "path": "web/recovery-workspace.legavik-product-service-v1-20260910-1.css",
       "sha256": "d3d7091b9888de662b0d8ef9ca4eb10dc0520c012791a1744a033973b98160e2"
     },
     {
-      "path": "web/account/canonical-entry.legavik-routing-runtime-stability-20260909-1.js",
-      "sha256": "1bd366d9dfae2eeb0fcc46cf27f6b01fc8921ff890d4fe9b09086bfe365f0f9b"
+      "path": "web/account/canonical-entry.legavik-product-service-v1-20260910-1.js",
+      "sha256": "84fe237677529dab25d21105d0d460e5d20da931f6af871f512a563dc4ee95c1"
     },
     {
-      "path": "web/account/public-config.legavik-routing-runtime-stability-20260909-1.js",
+      "path": "web/account/public-config.legavik-product-service-v1-20260910-1.js",
       "sha256": "3dc6074b161b599386e22c05bfa76507d5fe6c16221ac901a55a08b5c30165db"
     },
     {
-      "path": "web/account/account-nav-bridge.legavik-routing-runtime-stability-20260909-1.bundle.js",
-      "sha256": "0647a0223085a279e8294516fb45c6413c97ab0b0c38b3087adefbfd13b038f5"
+      "path": "web/account/account-nav-bridge.legavik-product-service-v1-20260910-1.bundle.js",
+      "sha256": "382eb05a35fcd0b02a585a5e793d1468046e0bcf5bf002a4da8c82b4c5f01b12"
     },
     {
-      "path": "web/account/account-app.legavik-routing-runtime-stability-20260909-1.bundle.js",
-      "sha256": "245fda36a372a3bf7f7c0adb433209481f8ed6f09ba3d9761d8833122d2bd02d"
+      "path": "web/account/account-app.legavik-product-service-v1-20260910-1.bundle.js",
+      "sha256": "ee9dfd649e86a81ca0d3591b97cb43971c14e3fcf63a9013ae3ba8446528d347"
     },
     {
-      "path": "web/account/account.legavik-routing-runtime-stability-20260909-1.css",
+      "path": "web/account/account.legavik-product-service-v1-20260910-1.css",
       "sha256": "555fc4ad3ba99b70f93f58f358c266f2932f5c97c187731fbc4a12237db614aa"
     },
     {
-      "path": "web/account/auth-ux.legavik-routing-runtime-stability-20260909-1.css",
+      "path": "web/account/auth-ux.legavik-product-service-v1-20260910-1.css",
       "sha256": "5823ddc485c6f37e49c30f602861c9a4afa360f1c445777eddcc88ca614ca35f"
     },
     {
-      "path": "web/v2/canonical-entry.legavik-routing-runtime-stability-20260909-1.js",
-      "sha256": "804f3ea3ceb5945102c54d62f80c3d4fd5f0638836e883145fb467100471a4da"
+      "path": "web/v2/canonical-entry.legavik-product-service-v1-20260910-1.js",
+      "sha256": "d4c27e917e04c7e1710e041edd9e1d5950c52de813a20e800304505e5b05b927"
     },
     {
-      "path": "web/v2/v2-app.legavik-routing-runtime-stability-20260909-1.bundle.js",
-      "sha256": "e481d3f333f8fbedfdc137e7636e69eed9b6c0ad42678d6036a4c0e6f47d84a2"
+      "path": "web/v2/v2-app.legavik-product-service-v1-20260910-1.bundle.js",
+      "sha256": "4b2413a24bcaa034fa19509da8b111860e8ea02b06764b76111e1f8625746d93"
     },
     {
-      "path": "web/v2/v2.legavik-routing-runtime-stability-20260909-1.css",
+      "path": "web/v2/v2.legavik-product-service-v1-20260910-1.css",
       "sha256": "644a10ed80352be4e373f5a6cb7e8e7e28de2e9ba50ec7e5800fdc074eb08f4a"
     },
     {
-      "path": "web/v2/readiness.legavik-routing-runtime-stability-20260909-1.css",
+      "path": "web/v2/readiness.legavik-product-service-v1-20260910-1.css",
       "sha256": "ab68f659ecf59ec0cdb2cadd34c02ef24802686ff82bf35f85dc50ba3018728a"
     },
     {
-      "path": "web/v2/product-integration.legavik-routing-runtime-stability-20260909-1.css",
+      "path": "web/v2/product-integration.legavik-product-service-v1-20260910-1.css",
       "sha256": "a7b2be8efd692f0d7e2cceffaef28ddbcfad43eb0245be46b0ca4279a3763699"
     },
     {
-      "path": "web/v3-crypto/canonical-entry.legavik-routing-runtime-stability-20260909-1.js",
-      "sha256": "6d3bf36820c40d990aca2bbc78a81d98e52cbd9ef1b3d9164e27d95f32a41813"
+      "path": "web/v3-crypto/canonical-entry.legavik-product-service-v1-20260910-1.js",
+      "sha256": "8f21fe3012bccc4728112cdca83c8ba7599cf3358fce672f572493e11bd05255"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-routing-runtime-stability-20260909-1.bundle.js",
-      "sha256": "78304323b271f6202860627e278e9fb819f897ffa710b6cd250d2354957ea2ef"
+      "path": "web/v3-crypto/product-v1.legavik-product-service-v1-20260910-1.bundle.js",
+      "sha256": "10fd697186ce76ed5de4e6886c6aae60c5be3d101b37cd2918b78e4a4a3aac95"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-routing-runtime-stability-20260909-1.css",
-      "sha256": "d75eb9f64cbdbf1ff9e14f858e0ad584d5a61b7626637a818060e03b5be2a2a8"
+      "path": "web/v3-crypto/product-v1.legavik-product-service-v1-20260910-1.css",
+      "sha256": "806aa1c08cafdd389b0d2cdcf0c59406b83fd80afa188ffc8f92ec5702086264"
     },
     {
-      "path": "web/v3-crypto/product-knowledge-pack-v1.legavik-routing-runtime-stability-20260909-1.js",
+      "path": "web/v3-crypto/product-knowledge-pack-v1.legavik-product-service-v1-20260910-1.js",
       "sha256": "9e18ae809734d7fe1415ad32a3dcf02983e4dc805b81839c90a54432ab2e8753"
     },
     {
-      "path": "web/v3-crypto/approved-knowledge.legavik-routing-runtime-stability-20260909-1.js",
+      "path": "web/v3-crypto/approved-knowledge.legavik-product-service-v1-20260910-1.js",
       "sha256": "47c492dfa30ad65386341d9dfc2a4b64f0cd95725ae8ac00414c037a0fc84322"
     },
     {
-      "path": "src/ui/skrek-global-header.legavik-routing-runtime-stability-20260909-1.css",
+      "path": "src/ui/skrek-global-header.legavik-product-service-v1-20260910-1.css",
       "sha256": "cedadaf8ed1135a636507dbec6e6a5996e357c34dac4e89872b38717fa8f1e74"
     }
   ]
