@@ -1,6 +1,6 @@
 export const APPROVED_TEST_ORIGIN='https://sixtrees778899-stack.github.io';
 export const APPROVED_TEST_BASE='/SKREK-auth-test';
-export const CURRENT_TEST_RELEASE='legavik-attachment-runtime-gate-20260918-1';
+export const CURRENT_TEST_RELEASE='legavik-module3-diagnostic-20260919-1';
 export const CURRENT_DEPLOYMENT_ID=CURRENT_TEST_RELEASE;
 
 const ROUTES=Object.freeze({
