@@ -1,72 +1,72 @@
 {
   "schema_version": 1,
-  "deployment_identity": "legavik-stage1a-acceptance-fix-20260921-1",
-  "release": "legavik-stage1a-acceptance-fix-20260921-1",
-  "release_timestamp": "2026-09-21T00:00:00Z",
-  "source_commit": "77e19480ea2f33025ec8982d0c467c7fb237615d",
+  "deployment_identity": "legavik-stage1a-checkpoint-diagnostic-20260921-1",
+  "release": "legavik-stage1a-checkpoint-diagnostic-20260921-1",
+  "release_timestamp": "2026-09-20T21:39:16Z",
+  "source_commit": "39dd677cbee5a3e5420328899fd5628e5ff1f4d9",
   "canonical_origin": "https://sixtrees778899-stack.github.io",
-  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-stage1a-acceptance-fix-20260921-1#home",
+  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-stage1a-checkpoint-diagnostic-20260921-1#home",
   "html": [
     {
       "path": "web/v3-crypto/index.html",
-      "sha256": "8338de0d99e57e61fff8d6dc1c19fb6202c525a9cf1ca0c15a0e7011d953f13e"
+      "sha256": "1613a06b88ca3b15b8d06a5807ed937895db71dbdb4f9d3bd69a68b7120f3d47"
     },
     {
       "path": "web/account/index.html",
-      "sha256": "d0b60a0f60261ba3a92ba385e7b2d2f453d86b476d8c904b9224eff48ae505a7"
+      "sha256": "c0fa3059e06c74839e370d2c57b72fd7162547a750e01ba72b73ca627ab1bbe9"
     },
     {
       "path": "web/v2/index.html",
-      "sha256": "068dce4bedc37426f717a53752bd5bada0a31259177374aeed3702faadc744f4"
+      "sha256": "ecb971781bd3bee91015b1b225d7cadd366744dc756ebb3e85e2e98b25fd9048"
     },
     {
       "path": "web/recover.html",
-      "sha256": "0eca8c0be4b53dc7e7203230056647e1c42644afddf682ae049b7be972089f77"
+      "sha256": "45c7182907520391a8527c1c11b1471675bf445b33ae4ba3322f2afee2ff5c16"
     }
   ],
   "assets": [
     {
-      "path": "web/canonical-runtime-gate.legavik-stage1a-acceptance-fix-20260921-1.js",
-      "sha256": "f6930eed2bfc8a4e709fdd652435b0d06cc92cf0ecc921907a6e63ea1ca67609"
+      "path": "web/canonical-runtime-gate.legavik-stage1a-checkpoint-diagnostic-20260921-1.js",
+      "sha256": "6fbaa6700f016f76f5dee81d7598ffdc22daa85c5a42537ce307f03943174e52"
     },
     {
-      "path": "web/canonical-entry-recovery.legavik-stage1a-acceptance-fix-20260921-1.js",
-      "sha256": "86bc3efceb14aa2c6198436e519723903a5579ae6d72d9a81fc739bd184e8e24"
+      "path": "web/canonical-entry-recovery.legavik-stage1a-checkpoint-diagnostic-20260921-1.js",
+      "sha256": "84fe8e4fa752ffdcb1871988fd4666a18ddf09a02f7af4771b01ae2a556a8f9f"
     },
     {
-      "path": "web/recover.legavik-stage1a-acceptance-fix-20260921-1.bundle.js",
-      "sha256": "1eafb9870c8230b5de3fc75a146f6316c9a42e211523ad66e04e0dee13ae1ae1"
+      "path": "web/recover.legavik-stage1a-checkpoint-diagnostic-20260921-1.bundle.js",
+      "sha256": "9ff7511c9ae66eedf86d01143740bc103b7f7bc882078b15324d450cf3ac6996"
     },
     {
-      "path": "web/styles.legavik-stage1a-acceptance-fix-20260921-1.css",
+      "path": "web/styles.legavik-stage1a-checkpoint-diagnostic-20260921-1.css",
       "sha256": "4efb1b1719d3c9e1dba4fef71e2a9055aa5d55b51e601899b5b25c58e0f47325"
     },
     {
-      "path": "web/recovery-workspace.legavik-stage1a-acceptance-fix-20260921-1.css",
+      "path": "web/recovery-workspace.legavik-stage1a-checkpoint-diagnostic-20260921-1.css",
       "sha256": "d3d7091b9888de662b0d8ef9ca4eb10dc0520c012791a1744a033973b98160e2"
     },
     {
-      "path": "web/account/canonical-entry.legavik-stage1a-acceptance-fix-20260921-1.js",
-      "sha256": "5a05ca8554bf21bec8e014ddb8fa8ac1dc5eb0861e01194446586a2ae0d0e332"
+      "path": "web/account/canonical-entry.legavik-stage1a-checkpoint-diagnostic-20260921-1.js",
+      "sha256": "c99a6dc07641461788c9a3518d3ea04583cd21bc6681340d5e885180b80f0741"
     },
     {
-      "path": "web/account/public-config.legavik-stage1a-acceptance-fix-20260921-1.js",
+      "path": "web/account/public-config.legavik-stage1a-checkpoint-diagnostic-20260921-1.js",
       "sha256": "3dc6074b161b599386e22c05bfa76507d5fe6c16221ac901a55a08b5c30165db"
     },
     {
-      "path": "web/account/account-nav-bridge.legavik-stage1a-acceptance-fix-20260921-1.bundle.js",
-      "sha256": "fca2498e9ce73b7f3023092e0b8265c950597a2872a23e8c33bdd15d3760ff80"
+      "path": "web/account/account-nav-bridge.legavik-stage1a-checkpoint-diagnostic-20260921-1.bundle.js",
+      "sha256": "f4f9a8f9636e454a8dec7e2c84e74243e71bdc49ee56e3b12739d8631c39cfc5"
     },
     {
-      "path": "web/account/account-app.legavik-stage1a-acceptance-fix-20260921-1.bundle.js",
-      "sha256": "ee1b2fc5583b33b173abb2122be08ec8f5bfcbfa832b1c3c9e97cea037eb292d"
+      "path": "web/account/account-app.legavik-stage1a-checkpoint-diagnostic-20260921-1.bundle.js",
+      "sha256": "2e0983f485de5661988fcbe33fd0c8c10f0196b604bef310e03ba8bcf58c8dfe"
     },
     {
-      "path": "web/account/account.legavik-stage1a-acceptance-fix-20260921-1.css",
+      "path": "web/account/account.legavik-stage1a-checkpoint-diagnostic-20260921-1.css",
       "sha256": "ccf9458e7c5dab24506ca3d14adb09ce07835ea8edb843cfb5443da285ed80bc"
     },
     {
-      "path": "web/account/auth-ux.legavik-stage1a-acceptance-fix-20260921-1.css",
+      "path": "web/account/auth-ux.legavik-stage1a-checkpoint-diagnostic-20260921-1.css",
       "sha256": "5823ddc485c6f37e49c30f602861c9a4afa360f1c445777eddcc88ca614ca35f"
     },
     {
@@ -74,39 +74,39 @@
       "sha256": "16f02c111773b7d006ac4eba81b0183a4e6725515645aaa3836fc2c4a4b732c5"
     },
     {
-      "path": "web/v2/canonical-entry.legavik-stage1a-acceptance-fix-20260921-1.js",
-      "sha256": "90e2952ee0e1961043b1228a6204c41edb4dfd07ecf43b3324f35e0ead6e8d26"
+      "path": "web/v2/canonical-entry.legavik-stage1a-checkpoint-diagnostic-20260921-1.js",
+      "sha256": "65bc9f15f5d5378165b47d33b5fbb3208d30e1beb8e1acea8be24fc974c2bca1"
     },
     {
-      "path": "web/v2/v2-app.legavik-stage1a-acceptance-fix-20260921-1.bundle.js",
-      "sha256": "ba8673e8d80eb779bc64f4ebffa06452015b6209e3d77a9b71f7109aa375dcf8"
+      "path": "web/v2/v2-app.legavik-stage1a-checkpoint-diagnostic-20260921-1.bundle.js",
+      "sha256": "7dcdc71e835788eeeac5cca7c1f843ad0eb95aacfc7f963240fb56da76495b4b"
     },
     {
-      "path": "web/v2/v2.legavik-stage1a-acceptance-fix-20260921-1.css",
+      "path": "web/v2/v2.legavik-stage1a-checkpoint-diagnostic-20260921-1.css",
       "sha256": "644a10ed80352be4e373f5a6cb7e8e7e28de2e9ba50ec7e5800fdc074eb08f4a"
     },
     {
-      "path": "web/v2/readiness.legavik-stage1a-acceptance-fix-20260921-1.css",
+      "path": "web/v2/readiness.legavik-stage1a-checkpoint-diagnostic-20260921-1.css",
       "sha256": "ab68f659ecf59ec0cdb2cadd34c02ef24802686ff82bf35f85dc50ba3018728a"
     },
     {
-      "path": "web/v2/product-integration.legavik-stage1a-acceptance-fix-20260921-1.css",
+      "path": "web/v2/product-integration.legavik-stage1a-checkpoint-diagnostic-20260921-1.css",
       "sha256": "a7b2be8efd692f0d7e2cceffaef28ddbcfad43eb0245be46b0ca4279a3763699"
     },
     {
-      "path": "web/v3-crypto/canonical-entry.legavik-stage1a-acceptance-fix-20260921-1.js",
-      "sha256": "3526729e352b8f36a051249332bcb4648f97e87d67d5f7c95d0bb17893ff1f2a"
+      "path": "web/v3-crypto/canonical-entry.legavik-stage1a-checkpoint-diagnostic-20260921-1.js",
+      "sha256": "44e36fd36888c41834f478fc1f28adcafc8e5255818a48aaa2535306cde2fa6a"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-stage1a-acceptance-fix-20260921-1.bundle.js",
-      "sha256": "e8da55dc3f249d101433a6c5fe263e892f4ed13af4e85e2b9e1de4c7655fc6a6"
+      "path": "web/v3-crypto/product-v1.legavik-stage1a-checkpoint-diagnostic-20260921-1.bundle.js",
+      "sha256": "d1c70577e2f07899e8266d4965f5ee4e8644097cd0bf6886ed29660ba8363155"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-stage1a-acceptance-fix-20260921-1.css",
+      "path": "web/v3-crypto/product-v1.legavik-stage1a-checkpoint-diagnostic-20260921-1.css",
       "sha256": "ddc2a6fa68786b15e9c0a74dcd1626da71bc3306468175556dc27143255993f7"
     },
     {
-      "path": "src/ui/skrek-global-header.legavik-stage1a-acceptance-fix-20260921-1.css",
+      "path": "src/ui/skrek-global-header.legavik-stage1a-checkpoint-diagnostic-20260921-1.css",
       "sha256": "cedadaf8ed1135a636507dbec6e6a5996e357c34dac4e89872b38717fa8f1e74"
     }
   ]
