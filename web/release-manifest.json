@@ -1,72 +1,72 @@
 {
   "schema_version": 1,
-  "deployment_identity": "legavik-signing-lifecycle-rc-20260920-1",
-  "release": "legavik-signing-lifecycle-rc-20260920-1",
-  "release_timestamp": "2026-09-20T02:36:50Z",
-  "source_commit": "73255b49967c3a23abfbbfd8d6d601a5b9f6d79d",
+  "deployment_identity": "legavik-stage1a-same-u1-resume-20260920-1",
+  "release": "legavik-stage1a-same-u1-resume-20260920-1",
+  "release_timestamp": "2026-09-20T12:00:00Z",
+  "source_commit": "974e4dceeb386ceae9448fa66f30bba804e52ee1",
   "canonical_origin": "https://sixtrees778899-stack.github.io",
-  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-signing-lifecycle-rc-20260920-1#home",
+  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-stage1a-same-u1-resume-20260920-1#home",
   "html": [
     {
       "path": "web/v3-crypto/index.html",
-      "sha256": "dae99c53fcd22a9446529672b526602f88669cadf4dcb9786fb9ef156bbcb366"
+      "sha256": "f15ef3ba4c37e5db164853afa4fb0f41d8533ae4af7b3976d64164870644208a"
     },
     {
       "path": "web/account/index.html",
-      "sha256": "00b59e52cd67409a4ae0c3f9714a095986167a9e798fbb5d4960221e746f271d"
+      "sha256": "ccd5cb968e3211787285d34f8bc6361b5d4354c7ccf1ee7510e70b49535672d7"
     },
     {
       "path": "web/v2/index.html",
-      "sha256": "d6ea957602cabdaa65efff0d5bca6557ec04a5f90ec7eb3fcc96c2ba202c0b46"
+      "sha256": "96bf46e827eb4b8cc0f12e4f8fadb1e137fc62caa2896f662d8424fe352aea3e"
     },
     {
       "path": "web/recover.html",
-      "sha256": "4a829ea0462d5bd081bb456d3785cfac30d3ca25ca2d0b19d046ec17dac1c9c8"
+      "sha256": "404d26bcbe8bd027adf7a2b4525be79ffd389af86ca87bd7ab104563ad06c861"
     }
   ],
   "assets": [
     {
-      "path": "web/canonical-runtime-gate.legavik-signing-lifecycle-rc-20260920-1.js",
-      "sha256": "d6e3b98b968214a056c44190e9c44b1a0fb3ef06c8eea8dcb7905cac68186bfd"
+      "path": "web/canonical-runtime-gate.legavik-stage1a-same-u1-resume-20260920-1.js",
+      "sha256": "33a38b69c0a36683a12525a5e0e994230d71fa6c59b75446a8cd18277d64043d"
     },
     {
-      "path": "web/canonical-entry-recovery.legavik-signing-lifecycle-rc-20260920-1.js",
-      "sha256": "10ee155f9995fb2094cac1c4b27fcccb6108fed40ae43d214d62e434a212f4d8"
+      "path": "web/canonical-entry-recovery.legavik-stage1a-same-u1-resume-20260920-1.js",
+      "sha256": "3a27cc015b533113a6907f60ae0b1ef95d5a097f52cd8c7974dfdb0b8c28f0bf"
     },
     {
-      "path": "web/recover.legavik-signing-lifecycle-rc-20260920-1.bundle.js",
-      "sha256": "e00c56b372406e5fc41c16d0015c8370b6468ace699e182c641574900109965a"
+      "path": "web/recover.legavik-stage1a-same-u1-resume-20260920-1.bundle.js",
+      "sha256": "df761d900c3fa7af0f0fb7ad148ca69b347bb1e099c1f67e0216894adb440aad"
     },
     {
-      "path": "web/styles.legavik-signing-lifecycle-rc-20260920-1.css",
+      "path": "web/styles.legavik-stage1a-same-u1-resume-20260920-1.css",
       "sha256": "4efb1b1719d3c9e1dba4fef71e2a9055aa5d55b51e601899b5b25c58e0f47325"
     },
     {
-      "path": "web/recovery-workspace.legavik-signing-lifecycle-rc-20260920-1.css",
+      "path": "web/recovery-workspace.legavik-stage1a-same-u1-resume-20260920-1.css",
       "sha256": "d3d7091b9888de662b0d8ef9ca4eb10dc0520c012791a1744a033973b98160e2"
     },
     {
-      "path": "web/account/canonical-entry.legavik-signing-lifecycle-rc-20260920-1.js",
-      "sha256": "8fb8a7cf766c850502f8d0bf66379bd97e9cc97f2c90fe416e468fb1421f3581"
+      "path": "web/account/canonical-entry.legavik-stage1a-same-u1-resume-20260920-1.js",
+      "sha256": "62dd61af23b4e82b60f866c15799f388eddd18e17e13b304df493efd43a1654d"
     },
     {
-      "path": "web/account/public-config.legavik-signing-lifecycle-rc-20260920-1.js",
+      "path": "web/account/public-config.legavik-stage1a-same-u1-resume-20260920-1.js",
       "sha256": "3dc6074b161b599386e22c05bfa76507d5fe6c16221ac901a55a08b5c30165db"
     },
     {
-      "path": "web/account/account-nav-bridge.legavik-signing-lifecycle-rc-20260920-1.bundle.js",
-      "sha256": "4967ce2a4d79e82dccb1f7a6a05fdcd23939d00a7f688edfcc11cb0d299f007b"
+      "path": "web/account/account-nav-bridge.legavik-stage1a-same-u1-resume-20260920-1.bundle.js",
+      "sha256": "a90ff164b43ca8e0ce1949a4304b38c4bca11b29900601fe5570786e9c216e31"
     },
     {
-      "path": "web/account/account-app.legavik-signing-lifecycle-rc-20260920-1.bundle.js",
-      "sha256": "479543cccf8a009fd1adac3d20f15e5c8750fd66f22fa5117f076db54b78b6cf"
+      "path": "web/account/account-app.legavik-stage1a-same-u1-resume-20260920-1.bundle.js",
+      "sha256": "a731c989c02b7402fba9973e88667622ce5f62813b727ef676a1d0e64753065f"
     },
     {
-      "path": "web/account/account.legavik-signing-lifecycle-rc-20260920-1.css",
-      "sha256": "42fa110232ffe1811ec146a5fb1705c60cc44da55f6f980fff2f0a66fd47b887"
+      "path": "web/account/account.legavik-stage1a-same-u1-resume-20260920-1.css",
+      "sha256": "ccf9458e7c5dab24506ca3d14adb09ce07835ea8edb843cfb5443da285ed80bc"
     },
     {
-      "path": "web/account/auth-ux.legavik-signing-lifecycle-rc-20260920-1.css",
+      "path": "web/account/auth-ux.legavik-stage1a-same-u1-resume-20260920-1.css",
       "sha256": "5823ddc485c6f37e49c30f602861c9a4afa360f1c445777eddcc88ca614ca35f"
     },
     {
@@ -74,39 +74,39 @@
       "sha256": "16f02c111773b7d006ac4eba81b0183a4e6725515645aaa3836fc2c4a4b732c5"
     },
     {
-      "path": "web/v2/canonical-entry.legavik-signing-lifecycle-rc-20260920-1.js",
-      "sha256": "3056cf1acbb22d8635810b9509f607391f66c93d3247f9d644504e65ea4954b5"
+      "path": "web/v2/canonical-entry.legavik-stage1a-same-u1-resume-20260920-1.js",
+      "sha256": "6f3800492e79cc2ffab4b864dd9a558951b7cffcb9e82c0fdfcb8a558358ef78"
     },
     {
-      "path": "web/v2/v2-app.legavik-signing-lifecycle-rc-20260920-1.bundle.js",
-      "sha256": "de4184ec1f040d0d17dd979b02e1d865861edb43583db5ba9718921765311662"
+      "path": "web/v2/v2-app.legavik-stage1a-same-u1-resume-20260920-1.bundle.js",
+      "sha256": "0d8a6cf50f3432123560d7bc66efa93cbac0761d70e872d089bf0025301c508c"
     },
     {
-      "path": "web/v2/v2.legavik-signing-lifecycle-rc-20260920-1.css",
+      "path": "web/v2/v2.legavik-stage1a-same-u1-resume-20260920-1.css",
       "sha256": "644a10ed80352be4e373f5a6cb7e8e7e28de2e9ba50ec7e5800fdc074eb08f4a"
     },
     {
-      "path": "web/v2/readiness.legavik-signing-lifecycle-rc-20260920-1.css",
+      "path": "web/v2/readiness.legavik-stage1a-same-u1-resume-20260920-1.css",
       "sha256": "ab68f659ecf59ec0cdb2cadd34c02ef24802686ff82bf35f85dc50ba3018728a"
     },
     {
-      "path": "web/v2/product-integration.legavik-signing-lifecycle-rc-20260920-1.css",
+      "path": "web/v2/product-integration.legavik-stage1a-same-u1-resume-20260920-1.css",
       "sha256": "a7b2be8efd692f0d7e2cceffaef28ddbcfad43eb0245be46b0ca4279a3763699"
     },
     {
-      "path": "web/v3-crypto/canonical-entry.legavik-signing-lifecycle-rc-20260920-1.js",
-      "sha256": "438511632f87705283535a80d73c2074c7a8270baf2a60415ccf0ed35f855022"
+      "path": "web/v3-crypto/canonical-entry.legavik-stage1a-same-u1-resume-20260920-1.js",
+      "sha256": "8d446f092749acf28416847c605e43d95ac5cf1a3f8b086606e183d5021ce2ec"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-signing-lifecycle-rc-20260920-1.bundle.js",
-      "sha256": "8da868eb5df702d0f1f943b48b6cdfcfff3fb1f9ac0572af12fcf8e49f99502a"
+      "path": "web/v3-crypto/product-v1.legavik-stage1a-same-u1-resume-20260920-1.bundle.js",
+      "sha256": "3bcbf18ea00af2cdaeecd7f4784e6f54de371749fdd4ba73c5677671556200f7"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-signing-lifecycle-rc-20260920-1.css",
+      "path": "web/v3-crypto/product-v1.legavik-stage1a-same-u1-resume-20260920-1.css",
       "sha256": "ddc2a6fa68786b15e9c0a74dcd1626da71bc3306468175556dc27143255993f7"
     },
     {
-      "path": "src/ui/skrek-global-header.legavik-signing-lifecycle-rc-20260920-1.css",
+      "path": "src/ui/skrek-global-header.legavik-stage1a-same-u1-resume-20260920-1.css",
       "sha256": "cedadaf8ed1135a636507dbec6e6a5996e357c34dac4e89872b38717fa8f1e74"
     }
   ]
