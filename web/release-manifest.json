@@ -35,7 +35,7 @@
     },
     {
       "path": "web/recover.legavik-signing-lifecycle-rc-20260920-1.bundle.js",
-      "sha256": "28188e6204538ff58eb20218a105a1b6cb0d252c318256099364efc885362b69"
+      "sha256": "e00c56b372406e5fc41c16d0015c8370b6468ace699e182c641574900109965a"
     },
     {
       "path": "web/styles.legavik-signing-lifecycle-rc-20260920-1.css",
@@ -55,11 +55,11 @@
     },
     {
       "path": "web/account/account-nav-bridge.legavik-signing-lifecycle-rc-20260920-1.bundle.js",
-      "sha256": "011944f3479f1648c2af2ea201a945904562c70760aa877955ae202488ddf1b9"
+      "sha256": "4967ce2a4d79e82dccb1f7a6a05fdcd23939d00a7f688edfcc11cb0d299f007b"
     },
     {
       "path": "web/account/account-app.legavik-signing-lifecycle-rc-20260920-1.bundle.js",
-      "sha256": "1e02611a19df001d7418bbbbd7b216b0c48fa8d6f0c01b2ed5a21438615c9172"
+      "sha256": "479543cccf8a009fd1adac3d20f15e5c8750fd66f22fa5117f076db54b78b6cf"
     },
     {
       "path": "web/account/account.legavik-signing-lifecycle-rc-20260920-1.css",
@@ -99,7 +99,7 @@
     },
     {
       "path": "web/v3-crypto/product-v1.legavik-signing-lifecycle-rc-20260920-1.bundle.js",
-      "sha256": "730384b86890d3f09f0a93d9c82953e89bfb1d61c84b6af6a9f6d47499b40ebd"
+      "sha256": "8da868eb5df702d0f1f943b48b6cdfcfff3fb1f9ac0572af12fcf8e49f99502a"
     },
     {
       "path": "web/v3-crypto/product-v1.legavik-signing-lifecycle-rc-20260920-1.css",
