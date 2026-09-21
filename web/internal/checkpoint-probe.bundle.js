@@ -86,10 +86,63 @@ async function decryptResumeCheckpoint({ password, record: record2, cryptoImpl =
 }
 var RESUME_CHECKPOINT_CRYPTO = Object.freeze({ format: "SKREK_ENCRYPTED_RESUME_V1", domain: DOMAIN, parameters: PARAMETERS });
 
+// src/diagnostics/checkpoint-identity-resolver.js
+var same = (a, b) => typeof a === "string" && a.length > 0 && a === b;
+var time = (value) => {
+  const parsed = Date.parse(value ?? "");
+  return Number.isFinite(parsed) ? parsed : null;
+};
+var pass = (value) => value ? "PASS" : "FAIL";
+var CHECKPOINT_LINEAGE_AUTHORITY = Object.freeze({
+  operation: Object.freeze({ id: "0ccee778-ed30-4f56-95ab-43f9a5ed6b85", reviewId: "ab91fd2a-472b-462b-8bcb-5865a1071e47", recoveryMapId: "edd54d1d-7aff-4897-b393-9d1a3f0de451", sourceVersionId: "d2652af5-87dd-48b4-b49c-841ad3d78fe5", draftId: "version-update-9b36fe8c-92c3-45fb-8efe-1723333e7e02", resultingVersionId: "ef93b4c5-8079-4cc1-ae5c-2d9f954fa7b4", status: "SYSTEM_LINKED", signingState: "COMPLETED", transactionId: "6MzUtDgH7PdByWeHogvchbadxljI4aU330MyzmZIeuE", createdAt: "2026-09-19T22:12:31.96847Z", signatureRequestedAt: "2026-09-20T04:59:50.23628Z", signedAt: "2026-09-20T05:04:20.183843Z", broadcastingAt: "2026-09-20T05:04:20.280345Z", broadcastedAt: "2026-09-20T05:05:15.595042Z", verifyingAt: "2026-09-20T05:05:19.619081Z", linkedAt: "2026-09-20T21:00:58.492286Z" }),
+  review: Object.freeze({ id: "ab91fd2a-472b-462b-8bcb-5865a1071e47", recoveryMapId: "edd54d1d-7aff-4897-b393-9d1a3f0de451", baselineVersionId: "d2652af5-87dd-48b4-b49c-841ad3d78fe5", resultingVersionId: "ef93b4c5-8079-4cc1-ae5c-2d9f954fa7b4", status: "COMPLETED", verificationResult: "PASS", updateResolution: "SYSTEM_LINKED", startedAt: "2026-09-19T22:09:26.32333Z", completedAt: "2026-09-20T21:00:58.492286Z" }),
+  sourceVersion: Object.freeze({ id: "d2652af5-87dd-48b4-b49c-841ad3d78fe5", recoveryMapId: "edd54d1d-7aff-4897-b393-9d1a3f0de451", versionNumber: 1, status: "HISTORICAL" }),
+  resultingVersion: Object.freeze({ id: "ef93b4c5-8079-4cc1-ae5c-2d9f954fa7b4", recoveryMapId: "edd54d1d-7aff-4897-b393-9d1a3f0de451", internalVersionId: "version-version-update-9b36fe8c-92c3-45fb-8efe-1723333e7e02", versionNumber: 2, operationId: "0ccee778-ed30-4f56-95ab-43f9a5ed6b85", snapshotId: "v2-6b5380b4-bf28-49ae-a7ae-2805829097d1", transactionId: "6MzUtDgH7PdByWeHogvchbadxljI4aU330MyzmZIeuE", archiveSha256: "1f3956710061fbcce750370ef268ab91e5992fef99d7da0cef1dea0fe7338882", archiveSizeBytes: 3097659, status: "CURRENT", publishedAt: "2026-09-20T21:00:58.271Z" }),
+  recoveryMap: Object.freeze({ id: "edd54d1d-7aff-4897-b393-9d1a3f0de451", currentVersionId: "ef93b4c5-8079-4cc1-ae5c-2d9f954fa7b4", status: "PUBLISHED" }),
+  relatedOperations: Object.freeze([{ id: "0ccee778-ed30-4f56-95ab-43f9a5ed6b85", reviewId: "ab91fd2a-472b-462b-8bcb-5865a1071e47", sourceVersionId: "d2652af5-87dd-48b4-b49c-841ad3d78fe5", resultingVersionId: "ef93b4c5-8079-4cc1-ae5c-2d9f954fa7b4", snapshotId: "v2-6b5380b4-bf28-49ae-a7ae-2805829097d1", archiveSha256: "1f3956710061fbcce750370ef268ab91e5992fef99d7da0cef1dea0fe7338882" }])
+});
+function sanitizeCheckpointMetadata(record2) {
+  return Object.freeze({ recordKey: record2?.operation_id ?? null, operationReference: record2?.operation?.operation_id ?? null, draftReference: record2?.operation?.draft_id ?? null, internalVersionReference: record2?.operation?.version_id ?? null, sourceVersionReference: record2?.operation?.source_version_id ?? null, snapshotReference: record2?.operation?.snapshot_id ?? null, transactionIdPresent: Boolean(record2?.operation?.transaction_id ?? record2?.evidence?.txid), createdAt: record2?.created_at ?? record2?.operation?.created_at ?? null, updatedAt: record2?.updated_at ?? record2?.operation?.updated_at ?? null, schema: record2?.checkpoint_schema ?? record2?.schema_version ?? null });
+}
+function resolveCheckpointIdentity({ records = [], resumePointer = null, authority = CHECKPOINT_LINEAGE_AUTHORITY } = {}) {
+  const { operation, review, sourceVersion, resultingVersion, recoveryMap } = authority;
+  const related = authority.relatedOperations ?? [];
+  const candidates = records.filter((record3) => [record3?.operation_id, record3?.operation?.operation_id].includes(operation.id) || record3?.operation?.snapshot_id === resultingVersion.snapshotId || record3?.operation?.archive_sha256 === resultingVersion.archiveSha256 || record3?.operation?.version_id === resultingVersion.internalVersionId);
+  const record2 = candidates.find((item) => item?.operation_id === operation.id) ?? null;
+  const op = record2?.operation ?? {};
+  const tx = op.transaction_id ?? record2?.evidence?.txid ?? null;
+  const reviewOps = related.filter((item) => item.reviewId === review.id);
+  const snapshotOps = related.filter((item) => item.snapshotId === resultingVersion.snapshotId);
+  const resultOps = related.filter((item) => item.resultingVersionId === resultingVersion.id);
+  const archiveOps = related.filter((item) => item.archiveSha256 === resultingVersion.archiveSha256);
+  const operationMatch = same(record2?.operation_id, operation.id) && same(op.operation_id, operation.id);
+  const pointerMatch = same(resumePointer, operation.id);
+  const reviewMapping = reviewOps.length === 1 && same(reviewOps[0].id, operation.id) && same(operation.reviewId, review.id) && same(review.recoveryMapId, operation.recoveryMapId);
+  const sourceMatch = same(operation.sourceVersionId, sourceVersion.id) && same(review.baselineVersionId, sourceVersion.id) && same(sourceVersion.recoveryMapId, operation.recoveryMapId) && (!op.source_version_id || same(op.source_version_id, sourceVersion.id));
+  const resultingMatch = same(operation.resultingVersionId, resultingVersion.id) && same(review.resultingVersionId, resultingVersion.id) && same(recoveryMap.currentVersionId, resultingVersion.id) && same(resultingVersion.operationId, operation.id);
+  const snapshotMatch = same(op.snapshot_id, resultingVersion.snapshotId);
+  const archiveMatch = same(op.archive_sha256, resultingVersion.archiveSha256) && Number(op.archive_size ?? op.archive_size_bytes) === Number(resultingVersion.archiveSizeBytes);
+  const txMatch = tx ? same(tx, operation.transactionId) && same(tx, resultingVersion.transactionId) : false;
+  const lifecycleTimes = [review.startedAt, operation.createdAt, operation.signatureRequestedAt, operation.signedAt, operation.broadcastingAt, operation.broadcastedAt, operation.verifyingAt, resultingVersion.publishedAt, operation.linkedAt, review.completedAt].map(time);
+  const timelineContinuous = lifecycleTimes.every((value) => value !== null) && lifecycleTimes.every((value, index) => index === 0 || value >= lifecycleTimes[index - 1]);
+  const lifecycleContinuity = operation.status === "SYSTEM_LINKED" && operation.signingState === "COMPLETED" && review.status === "COMPLETED" && review.verificationResult === "PASS" && review.updateResolution === "SYSTEM_LINKED" && resultingVersion.status === "CURRENT" && timelineContinuous;
+  const schemaRecognized = [2, 3].includes(Number(record2?.checkpoint_schema ?? record2?.schema_version));
+  const competingOperation = reviewOps.length > 1;
+  const sameSnapshotFork = snapshotOps.length > 1;
+  const sameResultingFork = resultOps.length > 1;
+  const sameArchiveFork = archiveOps.length > 1;
+  const localCandidateFork = candidates.length > 1;
+  const ambiguity = competingOperation || sameSnapshotFork || sameResultingFork || sameArchiveFork || localCandidateFork;
+  const checks = { operationMatch, pointerMatch, reviewMapping, sourceMatch, resultingMatch, snapshotMatch, archiveMatch, txMatch, lifecycleContinuity, schemaRecognized, noIdentityFork: !ambiguity };
+  const classification = ambiguity ? "MULTIPLE_OPERATION_AMBIGUITY" : Object.values(checks).every(Boolean) ? "SAFE_SAME_OPERATION_LINEAGE" : "FAIL_CLOSED";
+  return Object.freeze({ classification, candidateCount: candidates.length, relatedOperationCount: related.length, competingOperation, sameSnapshotFork, sameResultingFork, sameArchiveFork, ambiguity, checks: Object.freeze(Object.fromEntries(Object.entries(checks).map(([key, value]) => [key, pass(value)]))), internalVersionIdentity: op.version_id ?? null, internalVersionTreatment: "INFO ONLY", candidateMetadata: Object.freeze(candidates.map(sanitizeCheckpointMetadata)) });
+}
+
 // src/diagnostics/same-browser-checkpoint-probe.js
 var CHECKPOINT_PROBE_TARGET = Object.freeze({
   operationId: "0ccee778-ed30-4f56-95ab-43f9a5ed6b85",
-  versionId: "ef93b4c5-8079-4cc1-ae5c-2d9f954fa7b4",
+  resultingVersionId: "ef93b4c5-8079-4cc1-ae5c-2d9f954fa7b4",
+  internalVersionId: "version-version-update-9b36fe8c-92c3-45fb-8efe-1723333e7e02",
   snapshotId: "v2-6b5380b4-bf28-49ae-a7ae-2805829097d1"
 });
 var DB_NAME = "skrek-mainnet-operations-v1";
@@ -131,7 +184,7 @@ function classifyCleanup({ record: record2, delivery = null } = {}) {
 }
 function classifyCheckpointRecord(record2, target = CHECKPOINT_PROBE_TARGET) {
   if (!record2) return Object.freeze({ classification: "CHECKPOINT_ABSENT", checkpoint: "ABSENT", encryptedPayload: "ABSENT", operationMatch: "FAIL", snapshotMatch: "FAIL", kitReference: "UNKNOWN", evidenceReference: "UNKNOWN", deliveryState: "UNKNOWN", cleanup: "UNKNOWN", passwordRequired: false });
-  const operationMatch = record2.operation_id === target.operationId && record2.operation?.operation_id === target.operationId && record2.operation?.version_id === target.versionId;
+  const operationMatch = record2.operation_id === target.operationId && record2.operation?.operation_id === target.operationId;
   const snapshotMatch = record2.operation?.snapshot_id === target.snapshotId;
   if (!operationMatch || !snapshotMatch) return Object.freeze({ classification: "CHECKPOINT_METADATA_MISMATCH", checkpoint: "PRESENT", encryptedPayload: presentBytes(record2.encrypted_payload) ? "PRESENT" : "ABSENT", operationMatch: operationMatch ? "PASS" : "FAIL", snapshotMatch: snapshotMatch ? "PASS" : "FAIL", kitReference: "UNKNOWN", evidenceReference: "UNKNOWN", deliveryState: "UNKNOWN", cleanup: classifyCleanup({ record: record2 }), passwordRequired: false });
   if (record2.retention?.state === COMPLETED_RETENTION_STATE || !presentBytes(record2.encrypted_payload)) return Object.freeze({ classification: "CHECKPOINT_ABSENT", checkpoint: "ABSENT", encryptedPayload: "ABSENT", operationMatch: "PASS", snapshotMatch: "PASS", kitReference: "ABSENT", evidenceReference: record2.evidence ? "PRESENT" : "UNKNOWN", deliveryState: "UNKNOWN", cleanup: classifyCleanup({ record: record2 }), passwordRequired: false });
@@ -141,7 +194,7 @@ function inspectUnlockedPayload({ record: record2, payload, target = CHECKPOINT_
   const kitPresent = presentBytes(payload?.artifacts?.kitBytes);
   const evidence = payload?.evidence;
   const evidencePresent = Boolean(evidence && typeof evidence === "object");
-  const identityMatch = record2?.operation_id === target.operationId && record2?.operation?.version_id === target.versionId && record2?.operation?.snapshot_id === target.snapshotId && evidence?.recovery_kit_identifier === target.snapshotId && evidence?.archive_sha256 === record2?.operation?.archive_sha256 && (!record2?.operation?.transaction_id || evidence?.txid === record2.operation.transaction_id);
+  const identityMatch = record2?.operation_id === target.operationId && record2?.operation?.operation_id === target.operationId && record2?.operation?.snapshot_id === target.snapshotId && evidence?.recovery_kit_identifier === target.snapshotId && evidence?.archive_sha256 === record2?.operation?.archive_sha256 && (!record2?.operation?.transaction_id || evidence?.txid === record2.operation.transaction_id);
   const count = deliveryCount(payload?.delivery);
   const deliveryState = `${count}/2`;
   let classification = "CHECKPOINT_PAYLOAD_VALID_BUT_ARTIFACTS_MISSING";
@@ -181,35 +234,29 @@ async function openExistingDatabase(indexedDBImpl, { onStage, stageTimeoutMs }) 
     abandoned = true;
   } });
 }
-async function readExactRecord(indexedDBImpl, operationId, options) {
+async function readAllRecords(indexedDBImpl, options) {
   const { onStage, stageTimeoutMs } = options;
   const db = await openExistingDatabase(indexedDBImpl, options);
-  if (!db) return null;
+  if (!db) return [];
   if (!db.objectStoreNames.contains(STORE_NAME)) {
     db.close();
     throw probeError("CHECKPOINT_STORE_UNAVAILABLE", "OBJECT_STORE_ACCESS");
   }
   emitStage(onStage, "TRANSACTION_CREATE");
-  let tx, store, request;
+  let tx, request;
   try {
     tx = db.transaction(STORE_NAME, "readonly");
+    emitStage(onStage, "OBJECT_STORE_ACCESS");
+    emitStage(onStage, "U1_LOOKUP");
+    request = tx.objectStore(STORE_NAME).getAll();
   } catch (cause) {
     db.close();
     throw probeError("CHECKPOINT_TRANSACTION_FAILED", "TRANSACTION_CREATE", cause);
   }
-  try {
-    emitStage(onStage, "OBJECT_STORE_ACCESS");
-    store = tx.objectStore(STORE_NAME);
-    emitStage(onStage, "U1_LOOKUP");
-    request = store.get(operationId);
-  } catch (cause) {
-    db.close();
-    throw probeError("CHECKPOINT_SCHEMA_ACCESS_FAILED", "OBJECT_STORE_ACCESS", cause);
-  }
   return bounded(new Promise((resolve, reject) => {
     request.onsuccess = () => {
       emitStage(onStage, "CHECKPOINT_READ");
-      resolve(request.result ?? null);
+      resolve(Array.isArray(request.result) ? request.result : []);
     };
     request.onerror = () => reject(probeError("CHECKPOINT_READ_FAILED", "U1_LOOKUP", request.error));
     tx.oncomplete = () => db.close();
@@ -229,7 +276,8 @@ async function readExactRecord(indexedDBImpl, operationId, options) {
 async function inspectSameBrowserCheckpoint({ indexedDBImpl = globalThis.indexedDB, localStorageImpl = globalThis.localStorage, target = CHECKPOINT_PROBE_TARGET, onStage = null, stageTimeoutMs = DEFAULT_STAGE_TIMEOUT_MS, overallTimeoutMs = DEFAULT_OVERALL_TIMEOUT_MS } = {}) {
   emitStage(onStage, "PAGE_INIT");
   const run = async () => {
-    const record2 = await readExactRecord(indexedDBImpl, target.operationId, { onStage, stageTimeoutMs });
+    const records = await readAllRecords(indexedDBImpl, { onStage, stageTimeoutMs });
+    const record2 = records.find((item) => item?.operation_id === target.operationId) ?? null;
     emitStage(onStage, "LOCALSTORAGE_READ");
     let pointer = null, descriptor = null, sanitizePending = null, localStorageRead = "PASS";
     try {
@@ -241,8 +289,9 @@ async function inspectSameBrowserCheckpoint({ indexedDBImpl = globalThis.indexed
     }
     emitStage(onStage, "DELIVERY_STATE_READ");
     emitStage(onStage, "CLASSIFICATION");
-    const firstStage = classifyCheckpointRecord(record2, target);
-    return Object.freeze({ record: record2, firstStage, localState: Object.freeze({ read: localStorageRead, resumePointer: pointer === target.operationId ? "MATCH" : pointer ? "STALE" : "ABSENT", descriptorPresent: Boolean(descriptor), sanitizePending: sanitizePending === target.operationId ? "YES" : sanitizePending ? "OTHER" : "NO" }) });
+    const lineage = resolveCheckpointIdentity({ records, resumePointer: pointer, authority: CHECKPOINT_LINEAGE_AUTHORITY });
+    const firstStage = record2 ? Object.freeze({ ...classifyCheckpointRecord(record2, target), classification: lineage.classification, operationMatch: lineage.checks.operationMatch, snapshotMatch: lineage.checks.snapshotMatch, passwordRequired: lineage.classification === "SAFE_SAME_OPERATION_LINEAGE" }) : classifyCheckpointRecord(null, target);
+    return Object.freeze({ record: record2, records, firstStage, lineage, localState: Object.freeze({ read: localStorageRead, resumePointer: pointer === target.operationId ? "MATCH" : pointer ? "STALE" : "ABSENT", descriptorPresent: Boolean(descriptor), sanitizePending: sanitizePending === target.operationId ? "YES" : sanitizePending ? "OTHER" : "NO" }) });
   };
   return bounded(run(), { timeoutMs: overallTimeoutMs, stage: "OVERALL", onStage });
 }
@@ -270,7 +319,8 @@ try {
   } });
   record = result.record;
   const state = result.firstStage;
-  first.innerHTML = rows({ "Classification": state.classification, "Checkpoint": state.checkpoint, "Encrypted Payload": state.encryptedPayload, "Operation Match": state.operationMatch, "Snapshot Match": state.snapshotMatch, "Kit Artifact Reference": state.kitReference, "Evidence Artifact Reference": state.evidenceReference, "Delivery State": state.deliveryState, "Cleanup": state.cleanup, "localStorage read": result.localState.read, "Resume Pointer": result.localState.resumePointer, "Password Required For Next Step": state.passwordRequired ? "YES" : "NO" });
+  const lineage = result.lineage;
+  first.innerHTML = rows({ "Classification": state.classification, "Checkpoint Candidate Count": lineage.candidateCount, "Related Operation Count": lineage.relatedOperationCount, "Operation ID Match": lineage.checks.operationMatch, "Resume Pointer Match": lineage.checks.pointerMatch, "Internal Version Identity": lineage.internalVersionIdentity ?? "UNAVAILABLE", "Internal Version Treatment": lineage.internalVersionTreatment, "Review Mapping": lineage.checks.reviewMapping, "Source Version Mapping": lineage.checks.sourceMatch, "Resulting Version Mapping": lineage.checks.resultingMatch, "Snapshot Match": lineage.checks.snapshotMatch, "Archive Match": lineage.checks.archiveMatch, "TxID Match": lineage.checks.txMatch, "Lifecycle Continuity": lineage.checks.lifecycleContinuity, "Checkpoint Schema": lineage.checks.schemaRecognized, "Same Snapshot Fork": lineage.sameSnapshotFork ? "YES" : "NO", "Same Resulting Version Fork": lineage.sameResultingFork ? "YES" : "NO", "Competing U1/U2": lineage.competingOperation ? "YES" : "NO", "Unique Lineage": lineage.checks.noIdentityFork, "Encrypted Payload": state.encryptedPayload, "localStorage read": result.localState.read, "Password Required For Next Step": state.passwordRequired ? "YES" : "NO" });
   unlockSection.hidden = !state.passwordRequired;
   stage.textContent = "\u68C0\u67E5\u5B8C\u6210\uFF1ARENDER_RESULT";
 } catch (error) {
