@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>内部诊断 — 本地安全状态检查</title>
+  <link rel="stylesheet" href="checkpoint-probe.css">
+</head>
+<body>
+  <main id="checkpoint-probe" aria-live="polite">
+    <p class="eyebrow">LEGAVIK INTERNAL DIAGNOSTIC</p>
+    <h1>内部诊断 — 本地安全状态检查</h1>
+    <p>本页面只读取当前浏览器中指定操作的非敏感结构状态，不上传、不修改、不清理任何本地或远端数据。</p>
+    <section class="card"><h2>第一阶段</h2><p id="probe-stage">正在检查：PAGE_INIT</p><dl id="first-stage"><dt>状态</dt><dd>正在只读检查…</dd></dl></section>
+    <section class="card" id="unlock-section" hidden>
+      <h2>继续检查本地恢复凭证</h2>
+      <p>Recovery Password 仅在本浏览器内存中用于解锁当前加密检查点，不会上传或保存。</p>
+      <label>Recovery Password <input id="checkpoint-password" type="password" autocomplete="off"></label>
+      <button id="unlock-checkpoint" type="button">继续检查本地恢复凭证</button>
+      <dl id="second-stage"></dl>
+    </section>
+  </main>
+  <script type="module" src="checkpoint-probe.bundle.js"></script>
+</body>
+</html>
