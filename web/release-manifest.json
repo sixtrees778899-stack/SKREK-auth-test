@@ -1,72 +1,72 @@
 {
   "schema_version": 1,
-  "deployment_identity": "legavik-webkit-checkpoint-durable-20260922-1",
-  "release": "legavik-webkit-checkpoint-durable-20260922-1",
-  "release_timestamp": "2026-09-22T04:00:00Z",
-  "source_commit": "e0d50be64972df0afead60243f38b4c6571eb32b",
+  "deployment_identity": "legavik-initial-creation-fresh-resume-final-20260922-1",
+  "release": "legavik-initial-creation-fresh-resume-final-20260922-1",
+  "release_timestamp": "2026-09-22T12:00:00Z",
+  "source_commit": "af3894ed7e5cd4ccab417423ad36b6f216d08175",
   "canonical_origin": "https://sixtrees778899-stack.github.io",
-  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-webkit-checkpoint-durable-20260922-1#home",
+  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-initial-creation-fresh-resume-final-20260922-1#home",
   "html": [
     {
       "path": "web/v3-crypto/index.html",
-      "sha256": "7a84cb964680d60d954ea955ca2110057170740ee657b1a2247f8156b2a1adcd"
+      "sha256": "9067564ffee8dc215ebdd77df1cb44f3ac8598cf658fe07c56be045ac2ec67cd"
     },
     {
       "path": "web/account/index.html",
-      "sha256": "711d9c1d3cfafcbf6addb6f72de158c82ade75f8a3d09d8e18d82c528fb021a4"
+      "sha256": "f9ebfdf851ee802d9b51ccce919f8ed0249abfbf727d5ce75d271fe5faec49d9"
     },
     {
       "path": "web/v2/index.html",
-      "sha256": "bdb705908069833e9c12719b9962d2b4d07d6bdd9c3f5502267b97a8ffd96375"
+      "sha256": "b281837c4be596cb907e30d6167d315bec1c9c37ef6e7a0dd50ce0e3a54cd9e0"
     },
     {
       "path": "web/recover.html",
-      "sha256": "c97184d966ac32019abe6493b660e8f5ddfee6789765e45aea3a484698180211"
+      "sha256": "8f0885c8797042f6120241294400d714b5a370bc51fa2d6bdb0c627cc8626ff4"
     }
   ],
   "assets": [
     {
-      "path": "web/canonical-runtime-gate.legavik-webkit-checkpoint-durable-20260922-1.js",
-      "sha256": "3a4141998d7668e4489d22c63fe1dcdb3b13e9d46ac770d305a66031b9dff54d"
+      "path": "web/canonical-runtime-gate.legavik-initial-creation-fresh-resume-final-20260922-1.js",
+      "sha256": "14a157068641c9ce9ba62525ee848b353efdbe19659d04b52f231034c939239c"
     },
     {
-      "path": "web/canonical-entry-recovery.legavik-webkit-checkpoint-durable-20260922-1.js",
-      "sha256": "6f705c96e11241f29f45b2f463d6f557e406833833c044df7347121a58f89c81"
+      "path": "web/canonical-entry-recovery.legavik-initial-creation-fresh-resume-final-20260922-1.js",
+      "sha256": "7a94e2aa35ffd9cd6008fdcd788ee2e3157cf4f6e22b08c8249fdbfbd7563a1f"
     },
     {
-      "path": "web/recover.legavik-webkit-checkpoint-durable-20260922-1.bundle.js",
-      "sha256": "45554b2a5237450994b0af418c21519252c52cb9859d7aa092eeffa85b8d2cd0"
+      "path": "web/recover.legavik-initial-creation-fresh-resume-final-20260922-1.bundle.js",
+      "sha256": "d7ddba69baf9d54b11391da0202580a11087e03a925b41dcbedd835f5ca13460"
     },
     {
-      "path": "web/styles.legavik-webkit-checkpoint-durable-20260922-1.css",
+      "path": "web/styles.legavik-initial-creation-fresh-resume-final-20260922-1.css",
       "sha256": "4efb1b1719d3c9e1dba4fef71e2a9055aa5d55b51e601899b5b25c58e0f47325"
     },
     {
-      "path": "web/recovery-workspace.legavik-webkit-checkpoint-durable-20260922-1.css",
+      "path": "web/recovery-workspace.legavik-initial-creation-fresh-resume-final-20260922-1.css",
       "sha256": "d3d7091b9888de662b0d8ef9ca4eb10dc0520c012791a1744a033973b98160e2"
     },
     {
-      "path": "web/account/canonical-entry.legavik-webkit-checkpoint-durable-20260922-1.js",
-      "sha256": "812efaf72c7a1549456263376eb617d0d48ae7a3b19258b7e6bf0622a149cce6"
+      "path": "web/account/canonical-entry.legavik-initial-creation-fresh-resume-final-20260922-1.js",
+      "sha256": "12313a0c8efa1ad117d2e682681ed6e34b6b528d5e536fa52fa84d8ebaf9bbc2"
     },
     {
-      "path": "web/account/public-config.legavik-webkit-checkpoint-durable-20260922-1.js",
+      "path": "web/account/public-config.legavik-initial-creation-fresh-resume-final-20260922-1.js",
       "sha256": "3dc6074b161b599386e22c05bfa76507d5fe6c16221ac901a55a08b5c30165db"
     },
     {
-      "path": "web/account/account-nav-bridge.legavik-webkit-checkpoint-durable-20260922-1.bundle.js",
-      "sha256": "0f0cf6410425c1392e0e3e47748539f3d19477480ff7182006352b2e1f6853ee"
+      "path": "web/account/account-nav-bridge.legavik-initial-creation-fresh-resume-final-20260922-1.bundle.js",
+      "sha256": "40557ba8b324f00534208a941ecb6c1bccf2b7cfaaae9aa130235c99eaf6b615"
     },
     {
-      "path": "web/account/account-app.legavik-webkit-checkpoint-durable-20260922-1.bundle.js",
-      "sha256": "10be8cc11dce0f5dee6172190180bca9922ecd28a8c2a953b655565a4617d874"
+      "path": "web/account/account-app.legavik-initial-creation-fresh-resume-final-20260922-1.bundle.js",
+      "sha256": "e6936e5c44be3ec1b605ace1ea1e673e50b288b8587d72404a1c4b070c367801"
     },
     {
-      "path": "web/account/account.legavik-webkit-checkpoint-durable-20260922-1.css",
+      "path": "web/account/account.legavik-initial-creation-fresh-resume-final-20260922-1.css",
       "sha256": "ccf9458e7c5dab24506ca3d14adb09ce07835ea8edb843cfb5443da285ed80bc"
     },
     {
-      "path": "web/account/auth-ux.legavik-webkit-checkpoint-durable-20260922-1.css",
+      "path": "web/account/auth-ux.legavik-initial-creation-fresh-resume-final-20260922-1.css",
       "sha256": "5823ddc485c6f37e49c30f602861c9a4afa360f1c445777eddcc88ca614ca35f"
     },
     {
@@ -74,39 +74,39 @@
       "sha256": "16f02c111773b7d006ac4eba81b0183a4e6725515645aaa3836fc2c4a4b732c5"
     },
     {
-      "path": "web/v2/canonical-entry.legavik-webkit-checkpoint-durable-20260922-1.js",
-      "sha256": "caffcbe29638d7c0310f3dfe8dbf23392687e92008807dd568b14642eed00ad2"
+      "path": "web/v2/canonical-entry.legavik-initial-creation-fresh-resume-final-20260922-1.js",
+      "sha256": "c118a263b8b8a2794761294aad980ed7e91aa6f56e0bf4c215281aad23a72032"
     },
     {
-      "path": "web/v2/v2-app.legavik-webkit-checkpoint-durable-20260922-1.bundle.js",
-      "sha256": "1a8daace131978fbe7c4854adc38524d3d517d7195bd4aebde36771ae5e0950d"
+      "path": "web/v2/v2-app.legavik-initial-creation-fresh-resume-final-20260922-1.bundle.js",
+      "sha256": "04a6239c4d7587ce5d4c62c9a72db4fcfde883db91344206639c735a195e9d8e"
     },
     {
-      "path": "web/v2/v2.legavik-webkit-checkpoint-durable-20260922-1.css",
+      "path": "web/v2/v2.legavik-initial-creation-fresh-resume-final-20260922-1.css",
       "sha256": "644a10ed80352be4e373f5a6cb7e8e7e28de2e9ba50ec7e5800fdc074eb08f4a"
     },
     {
-      "path": "web/v2/readiness.legavik-webkit-checkpoint-durable-20260922-1.css",
+      "path": "web/v2/readiness.legavik-initial-creation-fresh-resume-final-20260922-1.css",
       "sha256": "ab68f659ecf59ec0cdb2cadd34c02ef24802686ff82bf35f85dc50ba3018728a"
     },
     {
-      "path": "web/v2/product-integration.legavik-webkit-checkpoint-durable-20260922-1.css",
+      "path": "web/v2/product-integration.legavik-initial-creation-fresh-resume-final-20260922-1.css",
       "sha256": "a7b2be8efd692f0d7e2cceffaef28ddbcfad43eb0245be46b0ca4279a3763699"
     },
     {
-      "path": "web/v3-crypto/canonical-entry.legavik-webkit-checkpoint-durable-20260922-1.js",
-      "sha256": "717a594ebcbed349e4656fe0641c2d6d8e818ecd372122b21167088c96c08d8f"
+      "path": "web/v3-crypto/canonical-entry.legavik-initial-creation-fresh-resume-final-20260922-1.js",
+      "sha256": "7b715ab4e2dde80072132be4bb022b65785cef1406fb6aa0e12c242cc219b914"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-webkit-checkpoint-durable-20260922-1.bundle.js",
-      "sha256": "f69e50996268e2dd59625b50c2ccc30a9bbfdd3afc67551fbc443a9c7dfaedac"
+      "path": "web/v3-crypto/product-v1.legavik-initial-creation-fresh-resume-final-20260922-1.bundle.js",
+      "sha256": "d8b0cfd77bb141a3d08a2ceda516c0c86289072d1224258a89039b3e5b4766aa"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-webkit-checkpoint-durable-20260922-1.css",
+      "path": "web/v3-crypto/product-v1.legavik-initial-creation-fresh-resume-final-20260922-1.css",
       "sha256": "ddc2a6fa68786b15e9c0a74dcd1626da71bc3306468175556dc27143255993f7"
     },
     {
-      "path": "src/ui/skrek-global-header.legavik-webkit-checkpoint-durable-20260922-1.css",
+      "path": "src/ui/skrek-global-header.legavik-initial-creation-fresh-resume-final-20260922-1.css",
       "sha256": "cedadaf8ed1135a636507dbec6e6a5996e357c34dac4e89872b38717fa8f1e74"
     }
   ]
