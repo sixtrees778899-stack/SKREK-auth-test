@@ -1,72 +1,72 @@
 {
   "schema_version": 1,
-  "deployment_identity": "legavik-upload-resume-main-aligned-20260924-1",
-  "release": "legavik-upload-resume-main-aligned-20260924-1",
+  "deployment_identity": "legavik-signed-upload-resume-walletless-20260924-1",
+  "release": "legavik-signed-upload-resume-walletless-20260924-1",
   "release_timestamp": "2026-09-24T00:00:00Z",
-  "source_commit": "c95d721336cbfd29d73848f6b0ba11e74d6fd868",
+  "source_commit": "51722e3aa9d67f010fef31a1238e6939b3429f08",
   "canonical_origin": "https://sixtrees778899-stack.github.io",
-  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-upload-resume-main-aligned-20260924-1#home",
+  "canonical_entry": "https://sixtrees778899-stack.github.io/SKREK-auth-test/web/v3-crypto/index.html?release=legavik-signed-upload-resume-walletless-20260924-1#home",
   "html": [
     {
       "path": "web/v3-crypto/index.html",
-      "sha256": "e992cfc971d40e4b121bf6fe769ba3ead3a088b2ce5115c9150de95e542fe673"
+      "sha256": "d1136909e11c5c059988222be75a56ea859a5cc5798c82e8e1d4d71e082182e8"
     },
     {
       "path": "web/account/index.html",
-      "sha256": "23d5d06de5e84770cd34ab19289f81826800d67d6b2b80c08b086b6175d15262"
+      "sha256": "02ab067288b4ebb4a81fce9ed9fec92cf33659f0839f607c7b9526e87c74607e"
     },
     {
       "path": "web/v2/index.html",
-      "sha256": "d21ae8abefc941f54ad03d6d2394c8437ef77b93970e3b2d293a1a03dcb67bf1"
+      "sha256": "d84dbc00ba57ebee366471278abf499cf4abfaa908dedd124adc6e934d379847"
     },
     {
       "path": "web/recover.html",
-      "sha256": "d8a9329fc45da7c021a02fdf50d73d8fbf305df2afaf430a243ac9681efe6466"
+      "sha256": "1ed7fb73276fab2552b77b5c2bba4f012af895ea5fad973189043dd6a045832d"
     }
   ],
   "assets": [
     {
-      "path": "web/canonical-runtime-gate.legavik-upload-resume-main-aligned-20260924-1.js",
-      "sha256": "4b6e10a9b287a68d945a4ff195b62b105ffade990eeecd6e1f93b06fc83424bf"
+      "path": "web/canonical-runtime-gate.legavik-signed-upload-resume-walletless-20260924-1.js",
+      "sha256": "31eeae41647834659a8e77aaf3ada1ea3a58c5ea8838a2ac04606967ea7299ef"
     },
     {
-      "path": "web/canonical-entry-recovery.legavik-upload-resume-main-aligned-20260924-1.js",
-      "sha256": "79347fe1e4b76397139c7a38cb02ed83b7d1fbe2f4a66e3af2b2246fdb2d2e5e"
+      "path": "web/canonical-entry-recovery.legavik-signed-upload-resume-walletless-20260924-1.js",
+      "sha256": "e0f0a65e8af8d94eb7d221976be0ffbf8fbab38909a529d75bc5fb07136db70b"
     },
     {
-      "path": "web/recover.legavik-upload-resume-main-aligned-20260924-1.bundle.js",
-      "sha256": "5aec4caac70f77db487b152572392835e25daf77d753ecd1a4781bf1233133f1"
+      "path": "web/recover.legavik-signed-upload-resume-walletless-20260924-1.bundle.js",
+      "sha256": "819de321ba12429b13cb0a74f86a1d288a5654afe338cc04f68d945c42a616f1"
     },
     {
-      "path": "web/styles.legavik-upload-resume-main-aligned-20260924-1.css",
+      "path": "web/styles.legavik-signed-upload-resume-walletless-20260924-1.css",
       "sha256": "4efb1b1719d3c9e1dba4fef71e2a9055aa5d55b51e601899b5b25c58e0f47325"
     },
     {
-      "path": "web/recovery-workspace.legavik-upload-resume-main-aligned-20260924-1.css",
+      "path": "web/recovery-workspace.legavik-signed-upload-resume-walletless-20260924-1.css",
       "sha256": "d3d7091b9888de662b0d8ef9ca4eb10dc0520c012791a1744a033973b98160e2"
     },
     {
-      "path": "web/account/canonical-entry.legavik-upload-resume-main-aligned-20260924-1.js",
-      "sha256": "c578a2877685d8f526b0436da120c734e088489f8c5893f26fc6e823b634ff09"
+      "path": "web/account/canonical-entry.legavik-signed-upload-resume-walletless-20260924-1.js",
+      "sha256": "7d50f3e10b9de3dd3f355106f9c6bd488b6fb0e0f5f9741099cf83002c99df6a"
     },
     {
-      "path": "web/account/public-config.legavik-upload-resume-main-aligned-20260924-1.js",
+      "path": "web/account/public-config.legavik-signed-upload-resume-walletless-20260924-1.js",
       "sha256": "3dc6074b161b599386e22c05bfa76507d5fe6c16221ac901a55a08b5c30165db"
     },
     {
-      "path": "web/account/account-nav-bridge.legavik-upload-resume-main-aligned-20260924-1.bundle.js",
-      "sha256": "a1d5126ec8b0603395bec6dc6feab0d567580ec73c59fa23751bcb2805bf40dd"
+      "path": "web/account/account-nav-bridge.legavik-signed-upload-resume-walletless-20260924-1.bundle.js",
+      "sha256": "c32823e714b565daf3c7e3706a9e046dfa2cf615f11dadb2b32278137f4a9bf1"
     },
     {
-      "path": "web/account/account-app.legavik-upload-resume-main-aligned-20260924-1.bundle.js",
-      "sha256": "3ac984c8efa045d01149a38b46b40a430887daef312aa5ccacd519f0c8395fc9"
+      "path": "web/account/account-app.legavik-signed-upload-resume-walletless-20260924-1.bundle.js",
+      "sha256": "df2e4eaf9d1cc4286c8cfa71a9473c1d28d22976742525eb503e9404cb409180"
     },
     {
-      "path": "web/account/account.legavik-upload-resume-main-aligned-20260924-1.css",
+      "path": "web/account/account.legavik-signed-upload-resume-walletless-20260924-1.css",
       "sha256": "ccf9458e7c5dab24506ca3d14adb09ce07835ea8edb843cfb5443da285ed80bc"
     },
     {
-      "path": "web/account/auth-ux.legavik-upload-resume-main-aligned-20260924-1.css",
+      "path": "web/account/auth-ux.legavik-signed-upload-resume-walletless-20260924-1.css",
       "sha256": "5823ddc485c6f37e49c30f602861c9a4afa360f1c445777eddcc88ca614ca35f"
     },
     {
@@ -74,39 +74,39 @@
       "sha256": "16f02c111773b7d006ac4eba81b0183a4e6725515645aaa3836fc2c4a4b732c5"
     },
     {
-      "path": "web/v2/canonical-entry.legavik-upload-resume-main-aligned-20260924-1.js",
-      "sha256": "93985447b7c252bfeb94e41185e100651ae4805e664a13807df4d84ed70af920"
+      "path": "web/v2/canonical-entry.legavik-signed-upload-resume-walletless-20260924-1.js",
+      "sha256": "9121a72b09f2129a21148776992aeffaaab9914c2cfc8c19875f782f6e67ef1f"
     },
     {
-      "path": "web/v2/v2-app.legavik-upload-resume-main-aligned-20260924-1.bundle.js",
-      "sha256": "1c41bf40e477cb2ec946e019017ad148965e1308a603d86c3956a486dc504a27"
+      "path": "web/v2/v2-app.legavik-signed-upload-resume-walletless-20260924-1.bundle.js",
+      "sha256": "fbafbf50cf26b3910e9fdc2e005e563bd56c89713a1b532b1330bf6c371be24b"
     },
     {
-      "path": "web/v2/v2.legavik-upload-resume-main-aligned-20260924-1.css",
+      "path": "web/v2/v2.legavik-signed-upload-resume-walletless-20260924-1.css",
       "sha256": "644a10ed80352be4e373f5a6cb7e8e7e28de2e9ba50ec7e5800fdc074eb08f4a"
     },
     {
-      "path": "web/v2/readiness.legavik-upload-resume-main-aligned-20260924-1.css",
+      "path": "web/v2/readiness.legavik-signed-upload-resume-walletless-20260924-1.css",
       "sha256": "ab68f659ecf59ec0cdb2cadd34c02ef24802686ff82bf35f85dc50ba3018728a"
     },
     {
-      "path": "web/v2/product-integration.legavik-upload-resume-main-aligned-20260924-1.css",
+      "path": "web/v2/product-integration.legavik-signed-upload-resume-walletless-20260924-1.css",
       "sha256": "a7b2be8efd692f0d7e2cceffaef28ddbcfad43eb0245be46b0ca4279a3763699"
     },
     {
-      "path": "web/v3-crypto/canonical-entry.legavik-upload-resume-main-aligned-20260924-1.js",
-      "sha256": "e3e374eb217062c04e3f2910ac15a187ed14d6791423949600177ecc83f83de6"
+      "path": "web/v3-crypto/canonical-entry.legavik-signed-upload-resume-walletless-20260924-1.js",
+      "sha256": "6c248f783276fb0233c16a150a22a46711f94fb0b92d785c8ffac18b7f3763de"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-upload-resume-main-aligned-20260924-1.bundle.js",
-      "sha256": "cf8186e5519891a37d4c51188ea82f1bb6a616bd0907634535b63c7b5d081302"
+      "path": "web/v3-crypto/product-v1.legavik-signed-upload-resume-walletless-20260924-1.bundle.js",
+      "sha256": "8fd331d9dca81849d9e760f5fdc34826cb37924794cc14408a0955cf7ee59246"
     },
     {
-      "path": "web/v3-crypto/product-v1.legavik-upload-resume-main-aligned-20260924-1.css",
+      "path": "web/v3-crypto/product-v1.legavik-signed-upload-resume-walletless-20260924-1.css",
       "sha256": "ddc2a6fa68786b15e9c0a74dcd1626da71bc3306468175556dc27143255993f7"
     },
     {
-      "path": "src/ui/skrek-global-header.legavik-upload-resume-main-aligned-20260924-1.css",
+      "path": "src/ui/skrek-global-header.legavik-signed-upload-resume-walletless-20260924-1.css",
       "sha256": "cedadaf8ed1135a636507dbec6e6a5996e357c34dac4e89872b38717fa8f1e74"
     }
   ]
